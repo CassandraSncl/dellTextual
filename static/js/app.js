@@ -80,7 +80,7 @@ function initializeScene1() {
     leftSection.className = 'left-section';
 
     let appName = document.createElement('img');
-    appName.src = 'assets/img/logo.png';
+    appName.src = 'static/img/logo.png';
     appName.className = 'appName';
     appName.alt = 'Text AI Logo';
     leftSection.appendChild(appName);
@@ -113,7 +113,7 @@ function initializeScene1() {
 
         // Ajout du logo en bas à droite
         let bottomRightLogo = document.createElement('img');
-        bottomRightLogo.src = 'assets/img/logo_dell.png';
+        bottomRightLogo.src = 'static/img/logo_dell.png';
         bottomRightLogo.alt = 'Bottom Right Logo';
         bottomRightLogo.className = 'bottom-right-logo';
         rightSection.appendChild(bottomRightLogo);
@@ -125,7 +125,7 @@ function initializeScene1() {
     details.appendChild(p);
 
     let img = document.createElement('img');
-    img.src = 'assets/img/univ2.png';
+    img.src = 'static/img/univ2.png';
     img.alt = 'AI Image';
     img.className = 'img_univ';
     details.appendChild(img);
@@ -158,7 +158,7 @@ function initializeScene2() {
 
     // Ajout du logo
     const logoImg = document.createElement('img');
-    logoImg.src = 'assets/img/logo_dell.png';
+    logoImg.src = 'static/img/logo_dell.png';
     logoImg.alt = 'Dell Logo';
     logoImg.className = 'page2_logo';
     page2Header.appendChild(logoImg);
@@ -166,7 +166,7 @@ function initializeScene2() {
 
     // Ajout du titre de l'application
     const appLogo = document.createElement('img');
-    appLogo.src = 'assets/img/logo.png';
+    appLogo.src = 'static/img/logo.png';
     appLogo.alt = 'AI Logo';
     appLogo.className = 'appLogo';
     // gsap.from(appName, {duration: 1, x:-100,opacity: 0, ease: 'back.out(1.7)'});
@@ -199,7 +199,7 @@ function initializeScene2() {
     page2ContentLeft.className = 'page2_content_left active';
 
     const menuHistoryClose = document.createElement('img');
-    menuHistoryClose.src = 'assets/img/menu-close.png';
+    menuHistoryClose.src = 'static/img/menu-close.png';
     menuHistoryClose.alt = 'menu-close';
     menuHistoryClose.className = 'menuHistoryClose';
     page2ContentLeft.appendChild(menuHistoryClose);
@@ -224,7 +224,7 @@ function initializeScene2() {
     page2ContentRight.className = 'page2_content_right';
 
     const menuHistoryOpen = document.createElement('img');
-    menuHistoryOpen.src = 'assets/img/menu.png';
+    menuHistoryOpen.src = 'static/img/menu.png';
     menuHistoryOpen.alt = 'menu-open';
     menuHistoryOpen.className = 'menuHistoryOpen';
     page2ContentRight.appendChild(menuHistoryOpen);
@@ -237,7 +237,7 @@ function initializeScene2() {
 
     // Ajout du logo de l'assistant
     const assistantLogo = document.createElement('img');
-    assistantLogo.src = 'assets/img/assistant.png';
+    assistantLogo.src = 'static/img/assistant.png';
     assistantLogo.alt = 'Assistant Logo';
     assistantLogo.className = 'assistant';
 
@@ -330,7 +330,7 @@ function initializeScene2() {
         dropdownAnim();
 
         const imageFond = document.createElement('img');
-        imageFond.src = 'assets/img/logo_fond.png';
+        imageFond.src = 'static/img/logo_fond.png';
         imageFond.alt = 'Logo';
         imageFond.className = 'logoFond';
         page2ContentRight.appendChild(imageFond);
@@ -477,13 +477,13 @@ function initializeScene3(){
     header.className = 'page2_header';
 
     const logo = document.createElement('img');
-    logo.src = 'assets/img/logo_dell.png';
+    logo.src = 'static/img/logo_dell.png';
     logo.alt = 'Dell Logo';
     logo.className = 'page2_logo';
     header.appendChild(logo);
 
     const appName = document.createElement('img');
-    appName.src = 'assets/img/logo.png';
+    appName.src = 'static/img/logo.png';
     appName.className = 'appLogo';
     appName.textContent = 'Text AI';
     header.appendChild(appName);
@@ -547,7 +547,7 @@ function createDropdown(activeOption) {
     const container = document.createElement('div');
     container.className = 'dropdown-container';
     const assistantChoice = document.createElement('img');
-    assistantChoice.src = 'assets/img/assistant.png';
+    assistantChoice.src = 'static/img/assistant.png';
     assistantChoice.alt = 'assistant Choice';
     assistantChoice.className = 'assistantChoice';
     const dropdown = document.createElement('div');
