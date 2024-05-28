@@ -1,34 +1,22 @@
-let previousScene = 1;
-let section;
-
+let previousScene = 2;
 
 $(document).ready(function() {
+    initializeScene(previousScene);
     // Initialiser la première scène
-    initializeScene(1);
-
-
-
 
 });
-
-
 
 function changeScene(sectionNumber) {
     // Arrêter et nettoyer la scène précédente s'il y en a une
     if (previousScene) {
         stopScene(previousScene);
     }
-
     // Initialiser la nouvelle scène
     initializeScene(sectionNumber);
-
     // Mettre à jour la référence de la scène précédente
     previousScene = sectionNumber;
 }
 
-
-
-// Fonction pour arrêter toutes les animations et les timers associés à une scène spécifique
 function stopScene(sceneNumber) {
     switch (sceneNumber) {
         case 1:
@@ -40,10 +28,6 @@ function stopScene(sceneNumber) {
         case 3:
             stopScene3();
             break;
-        case 4:
-            stopScene4();
-            break;
-        // Ajoutez d'autres cas pour les sections supplémentaires
         default:
             console.error("Scene not supported");
             break;
@@ -51,65 +35,27 @@ function stopScene(sceneNumber) {
 }
 
 function stopScene1() {
-    // Sélectionner le conteneur principal de la page 1
     let container = document.querySelector('.app_container_page1');
-
-    // Vérifier si le conteneur existe avant de le supprimer
     if (container) {
         container.remove();
     }
 }
 
-function stopScene2(){
-    // Sélectionner le conteneur principal de la page 2
+function stopScene2() {
     let containerPage2 = document.querySelector('.app_container_page');
-
-    // Vérifier si le conteneur existe avant de le supprimer
     if (containerPage2) {
         containerPage2.remove();
     }
-
 }
 
-function stopScene3(){
-
-    // Sélectionner le conteneur principal de la page 2
+function stopScene3() {
     let containerPage2 = document.querySelector('.app_container_page');
-
-    // Vérifier si le conteneur existe avant de le supprimer
     if (containerPage2) {
         containerPage2.remove();
     }
-
-
-    // Sortis des élements de la scène 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function initializeScene(sectionNumber) {
-
-    // Appeler la fonction spécifique à chaque section
     switch (sectionNumber) {
         case 1:
             initializeScene1();
@@ -120,52 +66,84 @@ function initializeScene(sectionNumber) {
         case 3:
             initializeScene3();
             break;
-        case 4:
-            initializeScene4();
-            break;        
-        // Ajoute d'autres cas pour les sections supplémentaires
         default:
             console.error("Section not supported");
             break;
     }
 }
 
-
-
 function initializeScene1() {
+    let container = document.createElement('div');
+    container.className = 'app_container_page1';
 
-      // Création de l'élément div contenant
-      let container = document.createElement('div');
-      container.className = 'app_container_page1';
-  
-      // Création du bouton
-      let button = document.createElement('button');
-      button.className = 'btn-page1';
-  
-      // Création du texte du bouton
-      let buttonTitle = document.createElement('h1');
-      buttonTitle.className = 'btn-text-page1';
-      buttonTitle.textContent = 'Try It !';
-  
-      // Assemblage des éléments
-      button.appendChild(buttonTitle);
-      container.appendChild(button);
+    let leftSection = document.createElement('div');
+    leftSection.className = 'left-section';
 
-      gsap.from(button, {duration: 1, y: -100, opacity: 0, ease: 'back.out(1.7)'});
-  
-      // Ajout du container à l'élément body ou à un autre élément spécifique de la page
-      document.body.appendChild(container);
-          // Ajouter un écouteur d'événements pour le bouton
-        $('.btn-page1').click(function() {
+    let appName = document.createElement('img');
+    appName.src = 'assets/img/logo.png';
+    appName.className = 'appName';
+    appName.alt = 'Text AI Logo';
+    leftSection.appendChild(appName);
 
-            // Changer de scène
-            changeScene(2);
-        });
+    let separator = document.createElement('div');
+    separator.className = 'separator';
+    leftSection.appendChild(separator);
 
- 
+    let title = document.createElement('h1');
+    title.className = 'title_page1';
+    title.textContent = 'Discover the world of movies and TV series without effort, thanks to our artificial intelligence.';
+    leftSection.appendChild(title);
+
+    let button = document.createElement('button');
+    button.className = 'btn-page1';
+
+    let buttonText = document.createElement('h1');
+    buttonText.className = 'btn-text-page1';
+    buttonText.textContent = 'Try It!';
+    button.appendChild(buttonText);
+
+    leftSection.appendChild(button);
+    container.appendChild(leftSection);
+
+    let rightSection = document.createElement('div');
+    rightSection.className = 'right-section';
+
+    let details = document.createElement('div');
+    details.className = 'details_page1';
+
+        // Ajout du logo en bas à droite
+        let bottomRightLogo = document.createElement('img');
+        bottomRightLogo.src = 'assets/img/logo_dell.png';
+        bottomRightLogo.alt = 'Bottom Right Logo';
+        bottomRightLogo.className = 'bottom-right-logo';
+        rightSection.appendChild(bottomRightLogo);
+            
+
+    let p = document.createElement('p');
+    p.className = 'p_page1';
+    p.innerHTML = 'Programmed by <strong>interns</strong> from the <strong>MIASHS License at Paul Valéry University</strong>, <strong>FlickFriend</strong> is a chatBot based on Llama 3 LLM';
+    details.appendChild(p);
+
+    let img = document.createElement('img');
+    img.src = 'assets/img/univ2.png';
+    img.alt = 'AI Image';
+    img.className = 'img_univ';
+    details.appendChild(img);
 
 
+    rightSection.appendChild(details);
+    container.appendChild(rightSection);
+
+    document.body.appendChild(container);
+
+    // gsap.from('.btn-page1', { duration: 1, y: -100, opacity: 0, ease: 'back.out(1.7)' });
+
+    $('.btn-page1').click(function() {
+        changeScene(2);
+    });
 }
+
+
 
 
 function initializeScene2() {
@@ -180,20 +158,19 @@ function initializeScene2() {
 
     // Ajout du logo
     const logoImg = document.createElement('img');
-    logoImg.src = 'assets/img/logo.png';
+    logoImg.src = 'assets/img/logo_dell.png';
     logoImg.alt = 'Dell Logo';
     logoImg.className = 'page2_logo';
     page2Header.appendChild(logoImg);
 
 
     // Ajout du titre de l'application
-    const appName = document.createElement('h1');
-    appName.className = 'appName';
-    appName.textContent = 'Text AI';
-
-    
-    gsap.from(appName, {duration: 1, x:-100,opacity: 0, ease: 'back.out(1.7)'});
-    page2Header.appendChild(appName);
+    const appLogo = document.createElement('img');
+    appLogo.src = 'assets/img/logo.png';
+    appLogo.alt = 'AI Logo';
+    appLogo.className = 'appLogo';
+    // gsap.from(appName, {duration: 1, x:-100,opacity: 0, ease: 'back.out(1.7)'});
+    page2Header.appendChild(appLogo);
 
     // Création du conteneur pour les liens
     const linkHeader = document.createElement('div');
@@ -252,8 +229,46 @@ function initializeScene2() {
     menuHistoryOpen.className = 'menuHistoryOpen';
     page2ContentRight.appendChild(menuHistoryOpen);
 
+    const contentChoice = document.createElement('div');
+    contentChoice.className = 'page2_content_choice';
+
+    const choice = document.createElement('div');
+    choice.className = 'choice';
+
+    // Ajout du logo de l'assistant
+    const assistantLogo = document.createElement('img');
+    assistantLogo.src = 'assets/img/assistant.png';
+    assistantLogo.alt = 'Assistant Logo';
+    assistantLogo.className = 'assistant';
+
+    const choiceText = document.createElement('p');
+    choiceText.className = 'choiceText';
+    choiceText.textContent = "Hello, I'm FlickFriend, your assistant for this chat, can you choose the mode you want :";
+
+    const choiceButtons = document.createElement('div');
+    choiceButtons.className = 'choiceButtons';
+    const choiceButton1 = document.createElement('button');
+    choiceButton1.className = 'choiceButton';
+    choiceButton1.textContent = 'Movie';
+    const choiceButton2 = document.createElement('button');
+    choiceButton2.className = 'choiceButton';
+    choiceButton2.textContent = 'Series';
+    const choiceButton3 = document.createElement('button');
+    choiceButton3.className = 'choiceButton';
+    choiceButton3.textContent = 'People';
+
+    choice.appendChild(assistantLogo);
+    choice.appendChild(choiceText);
+    choice.appendChild(choiceButtons);
+    choiceButtons.appendChild(choiceButton1);
+    choiceButtons.appendChild(choiceButton2);
+    choiceButtons.appendChild(choiceButton3);
+
+    contentChoice.appendChild(choice);
+    page2ContentRight.appendChild(contentChoice);
     page2Content.appendChild(page2ContentRight);
     containerPage2.appendChild(page2Content);
+
 
     // Bas de page
     const page2Bottom = document.createElement('div');
@@ -277,17 +292,7 @@ function initializeScene2() {
     containerPage2.appendChild(page2Bottom);
 
     // Ajout du conteneur principal à la page
-    document.body.appendChild(containerPage2);
-
-    gsap.to(logoImg, {
-        duration: 1, // Durée de l'animation en secondes
-        x: 20, // Distance de déplacement à droite
-        ease: 'power1.inOut', // Courbe d'animation
-        repeat: 20, // Répéter indéfiniment
-        yoyo: true // Inverser l'animation à chaque répétition
-    });
-    
-
+    document.body.appendChild(containerPage2);  
 
 
 
@@ -305,8 +310,6 @@ function initializeScene2() {
     });
 
 
-
-
     $('.menuHistoryClose').click(function() {
         $('.page2_content_left').toggleClass('active');
         $(".menuHistoryOpen").toggleClass('active');
@@ -318,9 +321,80 @@ function initializeScene2() {
 
     });
 
-    // Element de la scène 
+    $('.choiceButton').click(function() {
+        var buttonText = $(this).text();
+        localStorage.setItem('mode', buttonText);
+        console.log(buttonText);   // Affiche le texte du bouton dans la console (pour vérification)
+        $(contentChoice).remove();
+        createDropdown(buttonText);
+        dropdownAnim();
 
+        const imageFond = document.createElement('img');
+        imageFond.src = 'assets/img/logo_fond.png';
+        imageFond.alt = 'Logo';
+        imageFond.className = 'logoFond';
+        page2ContentRight.appendChild(imageFond);
+        const zoneMessages = document.createElement('div');
+        zoneMessages.className = 'zone-messages';
+        page2ContentRight.appendChild(zoneMessages);
+
+        const  buttonNewChat = document.createElement('button');
+        buttonNewChat.className = 'buttonNewChat';
+        buttonNewChat.textContent = 'New Chat';
+        page2Bottom.appendChild(buttonNewChat);
+
+        const topButton = document.createElement('button');
+        topButton.className = 'scrollToTopButton';
+        topButton.textContent = 'Top';
+        page2ContentRight.appendChild(topButton);
+
+        $('.buttonNewChat').click(function() {            
+            // fetch('data/conversation/conv.json')            
+            // .then(response => response.json())
+            // .then(data => {
+            //     // Parcours les messages du fichier JSON
+            //     data.conversation.forEach(message => {
+            //         // Vérifie l'auteur du message
+            //         if (message.auteur === 'humain') {
+            //             // Affiche le message comme venant de l'humain
+            //             addMessageHuman(message.message);
+            //         } else if (message.auteur === 'bot') {
+            //             // Affiche le message comme venant du bot
+            //             addMessageBot(message.message);
+            //         }
+            //     });
+            // })
+            // .catch(error => {
+            //     console.error('Erreur lors du chargement du fichier JSON :', error);
+            // });
+            const messages = stringify("data/conversation/conv.json");
+            console.log(messages);
+        });
+
+        $('.scrollToTopButton').click(function() {
+            scrollToTop();
+        });
+
+    });
+
+    $('.chatInput').keydown(function(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    $('.chatSend').click(function() {
+        sendMessage();
+    });
+
+    
+
+
+
+   
 }
+
 function initializeScene3(){
     // Element de la scène 
     function createAboutContent(parentElement, title, subTitle1, text1, subTitle2, text2) {
@@ -394,7 +468,6 @@ function initializeScene3(){
         parentElement.appendChild(content);
     }
 
-
     // Création du conteneur principal
     const container = document.createElement('div');
     container.className = 'app_container_page';
@@ -404,13 +477,14 @@ function initializeScene3(){
     header.className = 'page2_header';
 
     const logo = document.createElement('img');
-    logo.src = 'assets/img/logo.png';
+    logo.src = 'assets/img/logo_dell.png';
     logo.alt = 'Dell Logo';
     logo.className = 'page2_logo';
     header.appendChild(logo);
 
-    const appName = document.createElement('h1');
-    appName.className = 'appName';
+    const appName = document.createElement('img');
+    appName.src = 'assets/img/logo.png';
+    appName.className = 'appLogo';
     appName.textContent = 'Text AI';
     header.appendChild(appName);
 
@@ -463,8 +537,148 @@ function initializeScene3(){
         changeScene(3);
     });
 
-
-
-
-
 }
+
+        
+
+function createDropdown(activeOption) {
+    const dropdownContainer = document.querySelector('.page2_content_right');
+    // Créer les éléments HTML
+    const container = document.createElement('div');
+    container.className = 'dropdown-container';
+    const assistantChoice = document.createElement('img');
+    assistantChoice.src = 'assets/img/assistant.png';
+    assistantChoice.alt = 'assistant Choice';
+    assistantChoice.className = 'assistantChoice';
+    const dropdown = document.createElement('div');
+    dropdown.className = 'dropdown';
+    const select = document.createElement('div');
+    select.className = 'select';
+    const selected = document.createElement('span');
+    selected.className = 'selected';
+    selected.setAttribute('data-type', 'type');
+    selected.setAttribute('data-value', activeOption);
+    selected.textContent = activeOption;
+    const caret = document.createElement('div');
+    caret.className = 'caret';
+    select.appendChild(selected);
+    select.appendChild(caret);
+    const menu = document.createElement('ul');
+    menu.className = 'menu';
+    const options = [
+        { value: 'movie', text: 'Movie' },
+        { value: 'series', text: 'Series' },
+        { value: 'people', text: 'People' }
+    ];
+    options.forEach(option => {
+        const li = document.createElement('li');
+        li.setAttribute('data-value', option.value);
+        li.textContent = option.text;
+        if (option.value === activeOption) {
+            li.className = 'activedrop';
+        }
+        menu.appendChild(li);
+    });
+    dropdown.appendChild(select);
+    dropdown.appendChild(menu);
+    container.appendChild(assistantChoice);
+    container.appendChild(dropdown);
+    dropdownContainer.appendChild(container);
+    // Fermer le menu si on clique en dehors
+    document.addEventListener('click', function(event) {
+        if (!dropdown.contains(event.target)) {
+            dropdown.classList.remove('open');
+        }
+    });
+}
+
+
+function dropdownAnim() {
+    const dropdowns = document.querySelectorAll(".dropdown");
+    dropdowns.forEach(dropdown => {
+        const select = dropdown.querySelector(".select");
+        const caret = dropdown.querySelector(".caret");
+        const selected = dropdown.querySelector(".selected");
+        select.addEventListener("click", () => {
+            const menu = dropdown.querySelector(".menu");
+            const options = dropdown.querySelectorAll(".menu li");
+            select.classList.toggle("select-clicked");
+            caret.classList.toggle("caret-rotate");
+            menu.classList.toggle("menu-open");
+            options.forEach(option => {
+                option.addEventListener("click", () => {
+                    selected.innerText = option.innerText;
+                    localStorage.setItem('mode', option.innerText);
+                    selected.setAttribute('data-value', option.getAttribute("data-value"));
+                    select.classList.remove("select-clicked");
+                    caret.classList.remove("caret-rotate");
+                    menu.classList.remove("menu-open");
+
+                    options.forEach(opt => {
+                        opt.classList.remove("activedrop");
+                    });
+                    option.classList.add("activedrop");
+                });
+            });
+        });
+    });
+}
+
+function scrollToBottom() {
+    const zoneMessages = document.querySelector('.zone-messages');
+    zoneMessages.scrollTop = zoneMessages.scrollHeight;
+}
+
+ function scrollToTop() {
+    const zoneMessages = document.querySelector('.zone-messages');
+    zoneMessages.scrollTop = 0;
+}
+
+function sendMessage() {
+    const message = $('.chatInput').val();
+    if (message.trim() !== '') {
+        addMessageHuman(message);
+        $('.chatInput').val('');
+        addMessageBot("Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.");
+    }
+}
+
+function addMessageHuman(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
+    
+    const messageHumain = document.createElement('div');
+    messageHumain.className = 'human-message';
+
+    const messageText = document.createElement('p');
+    messageText.className = 'human-message-text';
+    messageText.textContent = message;
+
+    messageHumain.appendChild(messageText);
+    messageDiv.appendChild(messageHumain);
+
+    $('.zone-messages').append(messageDiv);
+
+    scrollToBottom();
+}
+
+function addMessageBot(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
+
+    const messageBot = document.createElement('div');
+    messageBot.className = 'bot-message';
+
+    const messageText = document.createElement('p');
+    messageText.className = 'bot-message-text';
+    messageText.textContent = message;
+
+    messageBot.appendChild(messageText);
+    messageDiv.appendChild(messageBot);
+
+    $('.zone-messages').append(messageDiv);
+
+    scrollToBottom();
+}
+
+
