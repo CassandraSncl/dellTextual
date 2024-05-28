@@ -8,12 +8,11 @@
     <script>
         $(document).ready(function() {
             // Assurez-vous que le mode est défini dans le localStorage pour ce test
-            localStorage.setItem('mode', 'people'); // ou 'people' ou 'series'
+            localStorage.setItem('mode', 'movie'); // ou 'people' ou 'series'
 
             $('#sendButton').click(function() {
                 const input = $('#inputField').val();
                 const mode = localStorage.getItem('mode');
-                alert("ca commence")
 
                 $.ajax({
                     url: '/process_input',
@@ -28,6 +27,20 @@
                     }
                 });
             });
+
+            $('#loadJsonButton').click(function() {
+                $.ajax({
+                    url: '/load_json',
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function(response) {
+                        $('#jsonOutput').text(JSON.stringify(response, null, 2));
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
         });
     </script>
 </head>
@@ -35,6 +48,8 @@
     <h1>Flask Input Processor</h1>
     <input type="text" id="inputField" placeholder="Enter input">
     <button id="sendButton">Send</button>
+    <button id="loadJsonButton">Load JSON</button>
     <p id="output"></p>
+    <pre id="jsonOutput"></pre>
 </body>
 </html>

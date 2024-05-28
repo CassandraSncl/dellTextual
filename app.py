@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, jsonify
 import subprocess
-import json
+import json, os
 
 app = Flask(__name__)
 
@@ -29,6 +29,18 @@ def process_input():
         output = 'Invalid mode'
     
     return jsonify({'output': output})
+
+
+@app.route('/load_json', methods=['GET'])
+def load_json():
+    json_file_path = os.path.join('data', 'conversation', 'conv.json')
+    
+    try:
+        with open(json_file_path, 'r') as json_file:
+            data = json.load(json_file)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
