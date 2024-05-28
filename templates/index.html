@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Input Processor</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Assurez-vous que le mode est défini dans le localStorage pour ce test
+            localStorage.setItem('mode', 'people'); // ou 'people' ou 'series'
+
+            $('#sendButton').click(function() {
+                const input = $('#inputField').val();
+                const mode = localStorage.getItem('mode');
+                alert("ca commence")
+
+                $.ajax({
+                    url: '/process_input',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ input: input, mode: mode }),
+                    success: function(response) {
+                        $('#output').text(response.output);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Flask Input Processor</h1>
+    <input type="text" id="inputField" placeholder="Enter input">
+    <button id="sendButton">Send</button>
+    <p id="output"></p>
+</body>
+</html>

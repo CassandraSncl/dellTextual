@@ -1,0 +1,63 @@
+{
+    "details": {
+        "adult": false,
+        "also_known_as": [
+            "\u0414\u0435\u043d\u0437\u0435\u043b \u0412\u0430\u0448\u0438\u043d\u0433\u0442\u043e\u043d",
+            "\u4e39\u6cfd\u5c14\u00b7\u534e\u76db\u987f",
+            "\u062f\u0646\u0632\u0644 \u0648\u0627\u0634\u0646\u0637\u0646",
+            "\u30c7\u30f3\u30bc\u30eb\u30fb\u30ef\u30b7\u30f3\u30c8\u30f3",
+            "\u0e40\u0e14\u0e19\u0e40\u0e0b\u0e25 \u0e27\u0e2d\u0e0a\u0e34\u0e07\u0e15\u0e31\u0e19",
+            "Denzel Hayes Washington, Jr.",
+            "\u039d\u03c4\u03ad\u03bd\u03b6\u03b5\u03bb \u039f\u03c5\u03ac\u03c3\u03b9\u03bd\u03b3\u03ba\u03c4\u03bf\u03bd",
+            "Denzel Hayes Washington",
+            "\u0414\u0435\u043d\u0437\u0435\u043b \u0412\u0430\u0448\u0438\u043d\u0491\u0442\u043e\u043d",
+            "\u0414\u0435\u043d\u0437\u044a\u043b \u0423\u043e\u0448\u0438\u043d\u0433\u0442\u044a\u043d",
+            "\u062f\u0646\u0632\u0644 \u0648\u0627\u0634\u06cc\u0646\u06af\u062a\u0648\u0646",
+            "\u10d3\u10d4\u10dc\u10d6\u10d4\u10da \u10d5\u10d0\u10e8\u10d8\u10dc\u10d2\u10e2\u10dd\u10dc\u10d8",
+            "\ub374\uc824 \uc6cc\uc2f1\ud134",
+            "\u4e39\u4f50\u00b7\u534e\u76db\u987f",
+            "\u4e39\u7d20\u00b7\u534e\u76db\u987f",
+            "\u4e39\u4f50\u00b7\u83ef\u76db\u9813"
+        ],
+        "biography": "Denzel Hayes Washington, Jr. (born December 28, 1954) is an American actor, screenwriter, director and film producer. He first rose to prominence when he joined the cast of the medical drama St. Elsewhere, playing Dr. Philip Chandler for six years. He has received much critical acclaim for his work in film since the 1990s, including for his portrayals of real-life figures, such as Steve Biko, Malcolm X, Rubin \u2018Hurricane\u2019 Carter, Melvin B. Tolson, Frank Lucas, and Herman Boone. Washington has received two Academy Awards, two Golden Globe awards, and a Tony Award. He is notable for winning the Best Supporting Actor Oscar for his part in Glory in 1989, and the Academy Award for Best Actor in 2001 for his role in the film Training Day.",
+        "birthday": "1954-12-28",
+        "deathday": null,
+        "gender": 2,
+        "homepage": null,
+        "id": 5292,
+        "imdb_id": "nm0000243",
+        "known_for_department": "Acting",
+        "name": "Denzel Washington",
+        "place_of_birth": "Mount Vernon, New York, USA",
+        "popularity": 81.266,
+        "profile_path": "/9Iyt3wbsla5bM6IzbICDVnBhkER.jpg"
+    },
+    "actors_series": [
+        [
+            "Inside Man",
+            "Keith Frazier"
+        ],
+        [
+            "Malcolm X",
+            "Malcolm X"
+        ],
+        [
+            "Out of Time",
+            "Matt Lee Whitlock"
+        ],
+        [
+            "Training Day",
+            "Alonzo"
+        ],
+        [
+            "The Hurricane",
+            "Rubin \"Hurricane\" Carter"
+        ]
+    ],
+    "actors_tv": [
+        [
+            "The Oscars",
+            "Self"
+        ]
+    ]
+}
