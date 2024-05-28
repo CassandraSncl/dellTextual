@@ -1,0 +1,23 @@
+{"conversation": [
+    {
+      "auteur": "humain",
+      "message": "Salut ! Comment ça va ?"
+    },
+    {
+      "auteur": "bot",
+      "message": "Bonjour ! Je vais bien, merci. Et vous ?"
+    },
+    {
+      "auteur": "humain",
+      "message": "Je vais bien aussi, merci !"
+    },
+    {
+      "auteur": "bot",
+      "message": "Super ! Que puis-je faire pour vous aujourd'hui ?"
+    },
+    {
+      "auteur": "humain",
+      "message": "J'aimerais en savoir plus sur votre produit."
+    }
+    ]
+}

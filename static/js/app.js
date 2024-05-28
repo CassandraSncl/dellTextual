@@ -166,7 +166,7 @@ function initializeScene2() {
 
     // Ajout du titre de l'application
     const appLogo = document.createElement('img');
-    appLogo.src = 'static/img/logo.png';
+    // appLogo.src = 'static/img/logo.png';
     appLogo.alt = 'AI Logo';
     appLogo.className = 'appLogo';
     // gsap.from(appName, {duration: 1, x:-100,opacity: 0, ease: 'back.out(1.7)'});
@@ -348,27 +348,22 @@ function initializeScene2() {
         topButton.textContent = 'Top';
         page2ContentRight.appendChild(topButton);
 
+        const jsonOutput = document.createElement('pre');
+        jsonOutput.id = 'jsonOutput';
+        page2ContentRight.appendChild(jsonOutput);
+
         $('.buttonNewChat').click(function() {            
-            // fetch('data/conversation/conv.json')            
-            // .then(response => response.json())
-            // .then(data => {
-            //     // Parcours les messages du fichier JSON
-            //     data.conversation.forEach(message => {
-            //         // Vérifie l'auteur du message
-            //         if (message.auteur === 'humain') {
-            //             // Affiche le message comme venant de l'humain
-            //             addMessageHuman(message.message);
-            //         } else if (message.auteur === 'bot') {
-            //             // Affiche le message comme venant du bot
-            //             addMessageBot(message.message);
-            //         }
-            //     });
-            // })
-            // .catch(error => {
-            //     console.error('Erreur lors du chargement du fichier JSON :', error);
-            // });
-            const messages = stringify("data/conversation/conv.json");
-            console.log(messages);
+            $.ajax({
+                url: '/load_json',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function(response) {
+                    $('#jsonOutput').text(JSON.stringify(response, null, 2));
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
         });
 
         $('.scrollToTopButton').click(function() {
@@ -634,12 +629,31 @@ function scrollToBottom() {
     zoneMessages.scrollTop = 0;
 }
 
+localStorage.setItem('mode', 'movie');
+
 function sendMessage() {
     const message = $('.chatInput').val();
     if (message.trim() !== '') {
         addMessageHuman(message);
+        const input = $('#chatInput').val();
+        const mode = localStorage.getItem('mode');
+
+        $.ajax({
+            url: '/process_input',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ input: input, mode: mode }),
+            success: function(response) {
+                $('#output').text(response.output);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+        const output = $('#output').text();
+        addMessageBot(output);
         $('.chatInput').val('');
-        addMessageBot("Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.");
+
     }
 }
 
