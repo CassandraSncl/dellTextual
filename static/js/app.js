@@ -345,36 +345,24 @@ function initializeScene2() {
         jsonOutput.id = 'jsonOutput';
         page2ContentRight.appendChild(jsonOutput);
 
-        $('.buttonNewChat').click(function() {            
-            $.ajax({
-                url: '/load_json',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function(response) {
-                    $('#jsonOutput').text(JSON.stringify(response, null, 2));
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                }
-            });
-        });
-
         $('.scrollToTopButton').click(function() {
             scrollToTop();
         });
 
-    });
-
-    $('.chatInput').keydown(function(event) {
-        if (event.keyCode === 13) {
-            event.preventDefault();
+        $('.chatInput').keydown(function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    
+        $('.chatSend').click(function() {
             sendMessage();
-        }
+        });
+
     });
 
-    $('.chatSend').click(function() {
-        sendMessage();
-    });
+    
 
     
 
@@ -624,20 +612,21 @@ function sendMessage() {
         addMessageHuman(message);
         const input = $('.chatInput').val();
         const mode = localStorage.getItem('mode');
-
-        $.ajax({
-            url: '/process_input',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ input: input, mode: mode }),
-            success: function(response) {
-                addMessageBot(response.output);
-                $('.chatInput').val('');
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-            }
-        });
+        $('.chatInput').val('');
+        addMessageBot("The revenue of the movie The Equalizer is $192,330,738");
+        // $.ajax({
+        //     url: '/process_input',
+        //     type: 'POST',
+        //     contentType: 'application/json',
+        //     data: JSON.stringify({ input: input, mode: mode }),
+        //     success: function(response) {
+        //         $('.chatInput').val('');
+        //         addMessageBot(response.output);
+        //     },
+        //     error: function(xhr, status, error) {
+        //         console.error('Error:', error);
+        //     }
+        // });
 
 
     }
@@ -662,6 +651,7 @@ function addMessageHuman(message) {
     scrollToBottom();
 }
 
+let articleOpen = false;
 function addMessageBot(message) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
@@ -673,12 +663,245 @@ function addMessageBot(message) {
     messageText.className = 'bot-message-text';
     messageText.textContent = message;
 
+    const detailBot = document.createElement('button');
+    detailBot.className = 'detailBot';
+    detailBot.textContent = 'Details';
+
     messageBot.appendChild(messageText);
+    messageBot.appendChild(detailBot);
     messageDiv.appendChild(messageBot);
 
     $('.zone-messages').append(messageDiv);
 
     scrollToBottom();
+
+    $('.detailBot').click(function() {            
+        if (articleOpen) {
+            $('#article').remove(); // Supprime l'article s'il est déjà ouvert
+            articleOpen = false; // Met à jour l'état de l'article ouvert
+        } else {
+            $.ajax({
+                url: '/load_json',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function(response) {
+                    const article = document.createElement('article');  
+                    const zone = document.querySelector('.zone-messages'); 
+                    article.id = 'article';       
+                    zone.appendChild(article); 
+                    createArticleSeries(response);
+                    articleOpen = true; // Met à jour l'état de l'article ouvert
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+    });
 }
 
+
+
+// FONCTIONS DES ARTICLES
+function createArticleMovie(jsonData) {
+    const container = document.createElement('div');
+    container.className = 'container_movie';
+
+    const poster = document.createElement('div');
+    poster.className = 'poster_movie';
+    
+    const posterImg = document.createElement('img');
+    posterImg.src = `https://image.tmdb.org/t/p/w500${jsonData.details.poster_path}`;
+    poster.appendChild(posterImg);
+
+    const details = document.createElement('div');
+    details.className = 'details_movie';
+
+    const header = document.createElement('div');
+    header.className = 'header_movie';
+    
+    const titleElement = document.createElement('h1');
+    titleElement.innerText = jsonData.details.title;
+    header.appendChild(titleElement);
+    details.appendChild(header);
+    
+    const info = document.createElement('div');
+    info.className = 'info_movie';
+    info.innerHTML = `
+        <div><strong> ${jsonData.details.release_date}</div>  <div><span class="star">★</span>${jsonData.details.vote_average} </div> <div> ${jsonData.details.runtime} min </strong> </div>
+    `;
+    
+    details.appendChild(info);
+
+    const summary = document.createElement('div');
+    summary.className = 'summary_movie';
+    summary.innerText = jsonData.details.overview;
+    details.appendChild(summary);
+
+    const extraInfo = document.createElement('div');
+    extraInfo.className = 'extra-info_movie';
+    extraInfo.innerHTML = `
+        <div><strong></strong> ${jsonData.details.genres.map(genre => genre.name).join(', ')}</div>
+        <div><strong>Budget: </strong> $${jsonData.details.budget.toLocaleString()}</div>
+        <div><strong>Revenue: </strong> $${jsonData.details.revenue.toLocaleString()}</div>
+    `;
+    poster.appendChild(extraInfo);
+
+    const production = document.createElement('div');
+    production.className = 'production_movie';
+    const productionCompanies = jsonData.details.production_companies.map(company => company.name).join(', ');
+    production.innerHTML = `<p><strong>Production Companies: </strong> ${productionCompanies}</p>`;
+    details.appendChild(production);
+
+
+    const actors = document.createElement('div');
+    actors.className = 'actors_movie';
+    const actorList = jsonData.actors.map(actor => `${actor[0]}`).join(', ');
+    actors.innerHTML = `<p><strong>Actors: </strong>${actorList}</p>`;
+    details.appendChild(actors);
+
+    container.appendChild(poster);
+    container.appendChild(details);
+
+    document.getElementById('article').appendChild(container);
+}
+
+function createArticlePerson(jsonData) {
+    const container = document.createElement('div');
+    container.className = 'container_person';
+
+    const details = document.createElement('div');
+    details.className = 'details_person';
+
+    const header = document.createElement('div');
+    header.className = 'header_person';
+
+    const titleElement = document.createElement('h1');
+    titleElement.innerText = jsonData.details.name;
+    header.appendChild(titleElement);
+    details.appendChild(header);
+
+    const info = document.createElement('div');
+    info.className = 'info_person';
+    const birthDate = new Date(jsonData.details.birthday).toLocaleDateString();
+    const deathDate = jsonData.details.deathday ? new Date(jsonData.details.deathday).toLocaleDateString() : 'Still alive';
+    info.innerHTML = `
+        <p><strong>Date of Birth: </strong>${birthDate}</p>
+        <p><strong>Date of Death: </strong>${deathDate}</p>
+    `;
+    details.appendChild(info);
+
+    const biography = document.createElement('div');
+    biography.className = 'biography_person';
+    biography.innerHTML = `<p><strong>Biography: </strong>${jsonData.details.biography}</p>`;
+    details.appendChild(biography);
+
+    const poster = document.createElement('div');
+    poster.className = 'poster_person';
+
+    const posterImg = document.createElement('img');
+    posterImg.src = `https://image.tmdb.org/t/p/w500${jsonData.details.profile_path}`;
+    poster.appendChild(posterImg);
+    container.appendChild(poster);
+
+    const movies = document.createElement('div');
+    movies.className = 'movies_person';
+    const moviesList = jsonData.actors_series.map(movie => `${movie[0]}`).join(', ');
+    movies.innerHTML = `<p><strong>Movies: </strong>${moviesList}</p>`;
+    details.appendChild(movies);
+
+    const series = document.createElement('div');
+    series.className = 'series_person';
+    const seriesList = jsonData.actors_tv.map(series => `${series[0]}`).join(', ');
+    series.innerHTML = `<p><strong>Series: </strong>${seriesList}</p>`;
+    details.appendChild(series);
+
+    container.appendChild(details);
+
+    document.getElementById('article').appendChild(container);
+}
+
+function createArticleSeries(jsonData) {
+    const container = document.createElement('div');
+    container.className = 'container_series';
+
+    const poster = document.createElement('div');
+    poster.className = 'poster_series';
+
+    const posterImg = document.createElement('img');
+    posterImg.src = `https://image.tmdb.org/t/p/w500${jsonData.details.poster_path}`;
+    poster.appendChild(posterImg);
+    container.appendChild(poster);
+
+    const details = document.createElement('div');
+    details.className = 'details_series';
+
+    const header = document.createElement('div');
+    header.className = 'header_series';
+
+    const titleElement = document.createElement('h1');
+    titleElement.innerText = jsonData.details.name;
+    header.appendChild(titleElement);
+    details.appendChild(header);
+
+    const info = document.createElement('div');
+    info.className = 'info_series';
+    info.innerHTML = `
+        <div><strong>First Air Date: </strong>${jsonData.details.first_air_date}</div>  <div><strong>Number of Seasons: </strong>${jsonData.details.number_of_seasons}</div>
+    `;
+
+    const info2 = document.createElement('div');
+    info2.className = 'info_series';
+    info2.innerHTML = `<div><strong>Last Air Date: </strong>${jsonData.details.last_air_date}</div>  <div><strong>Number of Episodes: </strong>${jsonData.details.number_of_episodes}</div>`;
+
+    details.appendChild(info);
+    details.appendChild(info2);
+
+    const overview = document.createElement('div');
+    overview.className = 'overview_series';
+    overview.innerHTML = `<p>${jsonData.details.overview}</p>`;
+    details.appendChild(overview);
+
+    const lastEpisodeSeparator = document.createElement('div');
+    lastEpisodeSeparator.className = 'last-episode_separator';
+    details.appendChild(lastEpisodeSeparator);
+
+    const lastEpisode = jsonData.details.last_episode_to_air;
+    const lastEpisodeInfo = document.createElement('div');
+    lastEpisodeInfo.className = 'last-episode_series';
+    const actorsList = jsonData.actors.map(actor => actor[0]).join(', ');
+    lastEpisodeInfo.innerHTML = `
+        <p><strong>Last Episode: </strong> ${lastEpisode.name}</p>
+        <div class="runtime-rating">
+            <p>${lastEpisode.runtime} min</p>
+            <p><span class="star">★</span>${lastEpisode.vote_average}</p>
+        </div>
+        <p>${lastEpisode.overview}</p>
+        <p><strong>Actors: </strong>${actorsList}</p>
+    `;
+    details.appendChild(lastEpisodeInfo);
+
+    const genres = document.createElement('div');
+    genres.className = 'genres_series';
+    const genresList = jsonData.details.genres.map(genre => genre.name).join(', ');
+    genres.innerHTML = `<p><strong> ${genresList} </strong></p>`;
+
+    const createdBy = document.createElement('div');
+    createdBy.className = 'created-by_series';
+    const createdByList = jsonData.details.created_by.map(creator => creator.name).join(', ');
+    createdBy.innerHTML = `<p><strong>Created By:</strong> ${createdByList}</p>`;
+
+    const networks = document.createElement('div');
+    networks.className = 'networks_series';
+    const networkList = jsonData.details.networks.map(network => network.name).join(', ');
+    networks.innerHTML = `<p><strong>Networks:</strong> ${networkList}</p>`;
+
+    poster.appendChild(genres);
+    poster.appendChild(createdBy);
+    poster.appendChild(networks);
+
+    container.appendChild(details);
+
+    document.getElementById('article').appendChild(container);
+}
 

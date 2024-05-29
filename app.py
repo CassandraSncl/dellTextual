@@ -35,7 +35,7 @@ def process_input():
 
 @app.route('/load_json', methods=['GET'])
 def load_json():
-    json_file_path = os.path.join('data', 'conversation', 'conv.json')
+    json_file_path = os.path.join('data', 'actuel.json')
     
     try:
         with open(json_file_path, 'r') as json_file:
