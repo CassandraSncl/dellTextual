@@ -60,6 +60,9 @@ def save_full_json(details: dict, actors: dict, movie_id: str):
     # Enregistrer le JSON complet dans un fichier
     with open(file_path, 'w') as file:
         json.dump(full_data, file, indent=4)
+    file_path_actuel = os.path.join('data', 'actuel.json')    
+    with open(file_path_actuel, 'w') as file:
+        json.dump(full_data, file, indent=4)      
 
 
 def get_movie_details(movie_id):

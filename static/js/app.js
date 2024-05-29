@@ -1,5 +1,8 @@
 let previousScene = 2;
 
+let numberchat = 0;
+let numberchatactuel = 0;
+
 $(document).ready(function() {
     initializeScene(previousScene);
     // Initialiser la première scène
@@ -286,6 +289,21 @@ function initializeScene2() {
 
     // Ajout du conteneur principal à la page
     document.body.appendChild(containerPage2);  
+    loadConversationTitles();
+
+    $.ajax({
+        url: '/count_conversations',
+        type: 'GET',
+        contentType: 'application/json',
+        success: function(response) {
+            numberchat = response.num_files;
+            numberchatactuel = numberchat;
+            console.log('Number of conversation files:', numberchat);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
 
 
 
@@ -319,6 +337,7 @@ function initializeScene2() {
         localStorage.setItem('mode', buttonText);
         console.log(buttonText);   // Affiche le texte du bouton dans la console (pour vérification)
         $(contentChoice).remove();
+        createConversation(buttonText);
         createDropdown(buttonText);
         dropdownAnim();
 
@@ -344,6 +363,29 @@ function initializeScene2() {
         const jsonOutput = document.createElement('pre');
         jsonOutput.id = 'jsonOutput';
         page2ContentRight.appendChild(jsonOutput);
+
+        $('.buttonNewChat').click(function() {            
+            const content = $('.zone-messages').html();
+            alert(numberchatactuel)
+        
+            $.ajax({
+                url: '/save_conversation',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
+                success: function(response) {
+                    alert(response.message);
+                    changeScene(2);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Failed to save conversation.');
+                }
+            });
+
+
+        });
+
 
         $('.scrollToTopButton').click(function() {
             scrollToTop();
@@ -609,32 +651,49 @@ function scrollToBottom() {
 function sendMessage() {
     const message = $('.chatInput').val();
     if (message.trim() !== '') {
-        addMessageHuman(message);
+
         const input = $('.chatInput').val();
         const mode = localStorage.getItem('mode');
-        $('.chatInput').val('');
-        addMessageBot("The revenue of the movie The Equalizer is $192,330,738");
-        // $.ajax({
-        //     url: '/process_input',
-        //     type: 'POST',
-        //     contentType: 'application/json',
-        //     data: JSON.stringify({ input: input, mode: mode }),
-        //     success: function(response) {
-        //         $('.chatInput').val('');
-        //         addMessageBot(response.output);
-        //     },
-        //     error: function(xhr, status, error) {
-        //         console.error('Error:', error);
-        //     }
-        // });
+        addMessageHuman(message, mode);
+
+        $.ajax({
+            url: '/process_input',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ input: input, mode: mode }),
+            success: function(response) {
+                addMessageBot(response.output, mode);
+                $('.chatInput').val('');
+                const content = $('.zone-messages').html();
+                $.ajax({
+                    url: '/save_conversation',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('Failed to save conversation.');
+                    }
+                });
+                
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
 
 
     }
 }
 
-function addMessageHuman(message) {
+
+function addMessageHuman(message, dataValue ) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
+    messageDiv.setAttribute('data-value', dataValue);
     
     const messageHumain = document.createElement('div');
     messageHumain.className = 'human-message';
@@ -652,9 +711,10 @@ function addMessageHuman(message) {
 }
 
 let articleOpen = false;
-function addMessageBot(message) {
+function addMessageBot(message, dataValue) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
+    messageDiv.setAttribute('data-value', dataValue);
 
     const messageBot = document.createElement('div');
     messageBot.className = 'bot-message';
@@ -904,4 +964,192 @@ function createArticleSeries(jsonData) {
 
     document.getElementById('article').appendChild(container);
 }
+
+function createConversation(mode){
+    numberchat++;
+    numberchatactuel = numberchat;
+    const zone = document.querySelector('.page2_content_history');
+    const conversation = document.createElement('div');
+    conversation.id = 'conversation' + numberchat;
+    conversation.className = 'conversation';
+    const conversationTitle = document.createElement('h1');
+    conversationTitle.className = 'conversation-title';
+    conversationTitle.textContent = 'New Chat - ' + mode;
+    conversation.appendChild(conversationTitle);
+    zone.appendChild(conversation);
+    conversation.classList.add('active');
+
+    $.ajax({
+        url: '/save_conversation',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ content: "", numberchat: numberchat }),
+        success: function(response) {
+            alert(response.message);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('Failed to save conversation.');
+        }
+    });
+
+
+    $.ajax({
+        url: '/add_to_historique',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ name: conversation.id, title: conversationTitle.textContent }),
+        success: function(response) {
+            console.log(response.message);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('Failed to add to historique.');
+        }
+    });
+
+    $('.conversation').click(function() {
+        const conversationId = $(this).attr('id');
+        document.querySelectorAll('.conversation').forEach(conversation => {
+            conversation.classList.remove('active');
+        });
+        $(this).toggleClass('active');
+
+        $.ajax({
+            url: `/load_conversation/${conversationId}`,
+            type: 'GET',
+            contentType: 'application/json',
+            success: function(response) {
+                numberchatactuel = conversationId.match(/\d+/)[0];
+                createZoneMessage(response.content);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('Failed to load conversation.');
+            }
+        });
+    });
+}
+function loadConversationTitles() {
+    $.ajax({
+        url: '/get_conversation_titles',
+        type: 'GET',
+        contentType: 'application/json',
+        success: function(response) {
+            response.forEach(conversation => {
+                createConversationHistorique(conversation.name, conversation.title);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
+}
+
+function createConversationHistorique(name, title){
+    const zone = document.querySelector('.page2_content_history');
+    const conversation = document.createElement('div');
+    conversation.id = name;
+    conversation.className = 'conversation';
+    const conversationTitle = document.createElement('h1');
+    conversationTitle.className = 'conversation-title';
+    conversationTitle.textContent = title
+    conversation.appendChild(conversationTitle);
+    zone.appendChild(conversation);
+
+    
+
+    $('.conversation').click(function() {
+        document.querySelectorAll('.conversation').forEach(conversation => {
+            conversation.classList.remove('active');
+        });
+        $(this).toggleClass('active');
+        const conversationId = $(this).attr('id');
+
+        $.ajax({
+            url: `/load_conversation/${conversationId}`,
+            type: 'GET',
+            contentType: 'application/json',
+            success: function(response) {
+                numberchatactuel = conversationId.match(/\d+/)[0];
+                createZoneMessage(response.content);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('Failed to load conversation.');
+            }
+        });
+    });
+}
+
+function createZoneMessage(content){
+
+    console.log(content)
+
+
+    $('.page2_content_right').empty();
+
+    const page2ContentRight = document.querySelector('.page2_content_right');
+    const page2Bottom = document.querySelector('.page2_bottom');
+    const imageFond = document.createElement('img');
+    imageFond.src = 'static/img/logo_fond.png';
+    imageFond.alt = 'Logo';
+    imageFond.className = 'logoFond';
+    page2ContentRight.appendChild(imageFond);
+    const zoneMessages = document.createElement('div');
+    zoneMessages.className = 'zone-messages';
+    zoneMessages.innerHTML = content;
+    page2ContentRight.appendChild(zoneMessages);
+
+    const  buttonNewChat = document.createElement('button');
+    buttonNewChat.className = 'buttonNewChat';
+    buttonNewChat.textContent = 'New Chat';
+    page2Bottom.appendChild(buttonNewChat);
+
+    const topButton = document.createElement('button');
+    topButton.className = 'scrollToTopButton';
+    topButton.textContent = 'Top';
+    page2ContentRight.appendChild(topButton);
+
+    const jsonOutput = document.createElement('pre');
+    jsonOutput.id = 'jsonOutput';
+    page2ContentRight.appendChild(jsonOutput);
+
+    var lastMessage = $('.zone-messages .message').last();
+    var dataValue = lastMessage.attr('data-value');
+
+    localStorage.setItem('mode', dataValue);
+    console.log(dataValue);   // Affiche le texte du bouton dans la console (pour vérification)
+    createDropdown(dataValue);
+    dropdownAnim();
+
+    $('.buttonNewChat').click(function() {            
+        const content = $('.zone-messages').html();
+    
+        $.ajax({
+            url: '/save_conversation',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
+            success: function(response) {
+                alert(response.message);
+                changeScene(2);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('Failed to save conversation.');
+            }
+        });
+
+
+    });
+
+    $('.scrollToTopButton').click(function() {
+        scrollToTop();
+    });
+
+
+}
+
+
 

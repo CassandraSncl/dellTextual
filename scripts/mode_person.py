@@ -57,7 +57,9 @@ def save_full_json(details: dict, actors_series: dict, actors_tv: dict, tv_id: s
     # Enregistrer le JSON complet dans un fichier
     with open(file_path, 'w') as file:
         json.dump(full_data, file, indent=4)
-
+    file_path_actuel = os.path.join('data', 'actuel.json')    
+    with open(file_path_actuel, 'w') as file:
+        json.dump(full_data, file, indent=4)  
 
 def get_person_details(id):
     url = f"https://api.themoviedb.org/3/person/{id}?language=en-US"
