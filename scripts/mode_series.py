@@ -45,7 +45,7 @@ API_KEY_TMDB = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYWM4ZWExYTUzOWFhMGViYjY0MGU5OWQ
 
 def save_full_json(details: dict, actors: dict, tv_id: str):
     # Chemin du fichier où enregistrer le JSON complet
-    data_dir = 'data/series'
+    data_dir = 'data/fiches/series'
     os.makedirs(data_dir, exist_ok=True)
     file_path = os.path.join(data_dir, f"{tv_id}_details.json")
     # Créer la structure de données combinée

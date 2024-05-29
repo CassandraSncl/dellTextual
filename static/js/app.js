@@ -162,15 +162,8 @@ function initializeScene2() {
     logoImg.alt = 'Dell Logo';
     logoImg.className = 'page2_logo';
     page2Header.appendChild(logoImg);
-
-
-    // Ajout du titre de l'application
-    const appLogo = document.createElement('img');
-    // appLogo.src = 'static/img/logo.png';
-    appLogo.alt = 'AI Logo';
-    appLogo.className = 'appLogo';
+    
     // gsap.from(appName, {duration: 1, x:-100,opacity: 0, ease: 'back.out(1.7)'});
-    page2Header.appendChild(appLogo);
 
     // Création du conteneur pour les liens
     const linkHeader = document.createElement('div');
@@ -541,10 +534,6 @@ function createDropdown(activeOption) {
     // Créer les éléments HTML
     const container = document.createElement('div');
     container.className = 'dropdown-container';
-    const assistantChoice = document.createElement('img');
-    assistantChoice.src = 'static/img/assistant.png';
-    assistantChoice.alt = 'assistant Choice';
-    assistantChoice.className = 'assistantChoice';
     const dropdown = document.createElement('div');
     dropdown.className = 'dropdown';
     const select = document.createElement('div');
@@ -576,7 +565,6 @@ function createDropdown(activeOption) {
     });
     dropdown.appendChild(select);
     dropdown.appendChild(menu);
-    container.appendChild(assistantChoice);
     container.appendChild(dropdown);
     dropdownContainer.appendChild(container);
     // Fermer le menu si on clique en dehors
@@ -629,13 +617,12 @@ function scrollToBottom() {
     zoneMessages.scrollTop = 0;
 }
 
-localStorage.setItem('mode', 'movie');
 
 function sendMessage() {
     const message = $('.chatInput').val();
     if (message.trim() !== '') {
         addMessageHuman(message);
-        const input = $('#chatInput').val();
+        const input = $('.chatInput').val();
         const mode = localStorage.getItem('mode');
 
         $.ajax({
@@ -644,15 +631,14 @@ function sendMessage() {
             contentType: 'application/json',
             data: JSON.stringify({ input: input, mode: mode }),
             success: function(response) {
-                $('#output').text(response.output);
+                addMessageBot(response.output);
+                $('.chatInput').val('');
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
             }
         });
-        const output = $('#output').text();
-        addMessageBot(output);
-        $('.chatInput').val('');
+
 
     }
 }

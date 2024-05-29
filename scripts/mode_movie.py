@@ -1,3 +1,5 @@
+#!/ai/Scripts/python.exe
+
 import os
 from langchain import hub
 from langchain.agents import create_structured_chat_agent,load_tools
@@ -16,7 +18,7 @@ import operator
 from langchain_core.utils.json import parse_json_markdown
 
 from langchain.tools import tool
-import requests
+import requests 
 import logging
 import json
 import sys
@@ -46,7 +48,7 @@ API_KEY_TMDB = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYWM4ZWExYTUzOWFhMGViYjY0MGU5OWQ
 
 def save_full_json(details: dict, actors: dict, movie_id: str):
     # Chemin du fichier où enregistrer le JSON complet
-    data_dir = 'data/movies'
+    data_dir = 'data/fiches/movies'
     os.makedirs(data_dir, exist_ok=True)
     file_path = os.path.join(data_dir, f"{movie_id}_details.json")
     # Créer la structure de données combinée

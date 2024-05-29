@@ -369,6 +369,7 @@ body {
     width: 30vw;
     height: auto;
     opacity: 0.15;
+    position: fixed;
 }
 
 .scrollToTopButton {

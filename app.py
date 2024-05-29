@@ -6,6 +6,8 @@ app = Flask(__name__)
 
 def execute_script(script_name, input_data):
     result = subprocess.run(['python', f'scripts/mode_{script_name}.py', input_data], capture_output=True, text=True)
+    print(result)
+    print(os.getenv("ai"))
     print(result.stdout)
     output = json.loads(result.stdout)  # Charger la sortie JSON
     return output['result']
@@ -19,11 +21,11 @@ def process_input():
     input_data = request.json.get('input')
     mode = request.json.get('mode')
     
-    if mode == 'movie':
+    if mode == 'Movie':
         output = execute_script('movie', input_data)
-    elif mode == 'people':
+    elif mode == 'People':
         output = execute_script('person', input_data)
-    elif mode == 'series':
+    elif mode == 'Series':
         output = execute_script('series', input_data)
     else:
         output = 'Invalid mode'
