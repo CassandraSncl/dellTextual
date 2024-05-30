@@ -40,11 +40,11 @@ def process_input():
     input_data = request.json.get('input')
     mode = request.json.get('mode')
     
-    if mode == 'movie':
+    if mode == 'Movie':
         output = execute_script('movie', input_data)
-    elif mode == 'people':
+    elif mode == 'People':
         output = execute_script('person', input_data)
-    elif mode == 'series':
+    elif mode == 'Series':
         output = execute_script('series', input_data)
     else:
         output = 'Invalid mode'
@@ -59,7 +59,7 @@ def get_title():
 
 @app.route('/load_json', methods=['GET'])
 def load_json():
-    json_file_path = os.path.join('data' 'actuel.json')
+    json_file_path = os.path.join('data','actuel.json')
     
     try:
         with open(json_file_path, 'r') as json_file:

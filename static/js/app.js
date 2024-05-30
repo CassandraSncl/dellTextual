@@ -1,4 +1,4 @@
-let previousScene = 2;
+let previousScene = 1;
 
 let numberchat = 0;
 let numberchatactuel = 0;
@@ -6,7 +6,6 @@ let numberchatactuel = 0;
 $(document).ready(function() {
     initializeScene(previousScene);
     // Initialiser la première scène
-
 });
 
 function changeScene(sectionNumber) {
@@ -270,21 +269,7 @@ function initializeScene2() {
     const page2Bottom = document.createElement('div');
     page2Bottom.className = 'page2_bottom';
 
-    const chatText = document.createElement('div');
-    chatText.className = 'chatText';
-
-    const chatInput = document.createElement('input');
-    chatInput.type = 'text';
-    chatInput.className = 'chatInput';
-    chatInput.placeholder = 'Type a message...';
-    chatText.appendChild(chatInput);
-
-    const chatSend = document.createElement('button');
-    chatSend.className = 'chatSend';
-    chatSend.textContent = 'Send';
-    chatText.appendChild(chatSend);
-
-    page2Bottom.appendChild(chatText);
+    
     containerPage2.appendChild(page2Bottom);
 
     // Ajout du conteneur principal à la page
@@ -364,9 +349,31 @@ function initializeScene2() {
         jsonOutput.id = 'jsonOutput';
         page2ContentRight.appendChild(jsonOutput);
 
+        const chatText = document.createElement('div');
+        chatText.className = 'chatText';
+
+        const chatInput = document.createElement('input');
+        chatInput.type = 'text';
+        chatInput.className = 'chatInput';
+        chatInput.placeholder = 'Type a message...';
+        chatText.appendChild(chatInput);
+
+        const chatSend = document.createElement('button');
+        chatSend.className = 'chatSend';
+        chatSend.textContent = 'Send';
+        chatText.appendChild(chatSend);
+
+        const attention = document.createElement('p');
+        attention.className = 'attention';
+        attention.textContent = 'FlickFriend can make mistakes. Consider checking important information.';
+
+        page2Bottom.appendChild(chatText);
+        document.querySelector(".app_container_page").appendChild(attention);
+
+
         $('.buttonNewChat').click(function() {            
             const content = $('.zone-messages').html();
-            alert(numberchatactuel)
+
         
             $.ajax({
                 url: '/save_conversation',
@@ -374,7 +381,7 @@ function initializeScene2() {
                 contentType: 'application/json',
                 data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
                 success: function(response) {
-                    alert(response.message);
+
                     changeScene(2);
                 },
                 error: function(xhr, status, error) {
@@ -382,10 +389,7 @@ function initializeScene2() {
                     alert('Failed to save conversation.');
                 }
             });
-
-
         });
-
 
         $('.scrollToTopButton').click(function() {
             scrollToTop();
@@ -404,14 +408,8 @@ function initializeScene2() {
 
     });
 
-    
-
-    
-
-
-
-   
 }
+
 
 function initializeScene3(){
     // Element de la scène 
@@ -556,9 +554,7 @@ function initializeScene3(){
     });
 
 }
-
-        
-
+  
 function createDropdown(activeOption) {
     const dropdownContainer = document.querySelector('.page2_content_right');
     // Créer les éléments HTML
@@ -605,7 +601,6 @@ function createDropdown(activeOption) {
     });
 }
 
-
 function dropdownAnim() {
     const dropdowns = document.querySelectorAll(".dropdown");
     dropdowns.forEach(dropdown => {
@@ -647,7 +642,6 @@ function scrollToBottom() {
     zoneMessages.scrollTop = 0;
 }
 
-
 function sendMessage() {
     const message = $('.chatInput').val();
     if (message.trim() !== '') {
@@ -671,7 +665,7 @@ function sendMessage() {
                     contentType: 'application/json',
                     data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
                     success: function(response) {
-                        alert(response.message);
+
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
@@ -688,7 +682,6 @@ function sendMessage() {
 
     }
 }
-
 
 function addMessageHuman(message, dataValue ) {
     const messageDiv = document.createElement('div');
@@ -710,7 +703,6 @@ function addMessageHuman(message, dataValue ) {
     scrollToBottom();
 }
 
-let articleOpen = false;
 function addMessageBot(message, dataValue) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
@@ -735,32 +727,34 @@ function addMessageBot(message, dataValue) {
 
     scrollToBottom();
 
-    $('.detailBot').click(function() {            
-        if (articleOpen) {
-            $('#article').remove(); // Supprime l'article s'il est déjà ouvert
-            articleOpen = false; // Met à jour l'état de l'article ouvert
-        } else {
-            $.ajax({
-                url: '/load_json',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function(response) {
-                    const article = document.createElement('article');  
-                    const zone = document.querySelector('.zone-messages'); 
-                    article.id = 'article';       
-                    zone.appendChild(article); 
-                    createArticleSeries(response);
-                    articleOpen = true; // Met à jour l'état de l'article ouvert
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                }
+
+    $.ajax({
+        url: '/load_json',
+        type: 'GET',
+        contentType: 'application/json',
+        success: function(response) {
+            const article = document.createElement('article');  
+            article.className = 'article';       
+            messageDiv.appendChild(article);
+            if (dataValue === 'Movie') {
+                createArticleMovie(response);
+            } else if (dataValue === 'People') {
+                createArticlePerson(response);
+            } else if (dataValue === 'Series') {
+                createArticleSeries(response);
+            } 
+            $(detailBot).click(function() {
+                $(article).toggle("active");
             });
+
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
         }
     });
+
+ 
 }
-
-
 
 // FONCTIONS DES ARTICLES
 function createArticleMovie(jsonData) {
@@ -788,7 +782,7 @@ function createArticleMovie(jsonData) {
     const info = document.createElement('div');
     info.className = 'info_movie';
     info.innerHTML = `
-        <div><strong> ${jsonData.details.release_date}</div>  <div><span class="star">★</span>${jsonData.details.vote_average} </div> <div> ${jsonData.details.runtime} min </strong> </div>
+        <div><strong> ${jsonData.details.release_date}</div>  <div><img class="star" src="static/img/star.png">${jsonData.details.vote_average} </div> <div> ${jsonData.details.runtime} min </strong> </div>
     `;
     
     details.appendChild(info);
@@ -823,7 +817,9 @@ function createArticleMovie(jsonData) {
     container.appendChild(poster);
     container.appendChild(details);
 
-    document.getElementById('article').appendChild(container);
+    
+    var lastMessage = $('.zone-messages .message').last().find('.article');
+    lastMessage.append(container);
 }
 
 function createArticlePerson(jsonData) {
@@ -878,7 +874,9 @@ function createArticlePerson(jsonData) {
 
     container.appendChild(details);
 
-    document.getElementById('article').appendChild(container);
+   
+    var lastMessage = $('.zone-messages .message').last().find('.article');
+    lastMessage.append(container);
 }
 
 function createArticleSeries(jsonData) {
@@ -934,7 +932,7 @@ function createArticleSeries(jsonData) {
         <p><strong>Last Episode: </strong> ${lastEpisode.name}</p>
         <div class="runtime-rating">
             <p>${lastEpisode.runtime} min</p>
-            <p><span class="star">★</span>${lastEpisode.vote_average}</p>
+            <p><img class="star" src="static/img/star.png">${lastEpisode.vote_average}</p>
         </div>
         <p>${lastEpisode.overview}</p>
         <p><strong>Actors: </strong>${actorsList}</p>
@@ -962,7 +960,9 @@ function createArticleSeries(jsonData) {
 
     container.appendChild(details);
 
-    document.getElementById('article').appendChild(container);
+    var lastMessage = $('.zone-messages .message').last().find('.article');
+    lastMessage.append(container);
+
 }
 
 function createConversation(mode){
@@ -985,7 +985,7 @@ function createConversation(mode){
         contentType: 'application/json',
         data: JSON.stringify({ content: "", numberchat: numberchat }),
         success: function(response) {
-            alert(response.message);
+
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
@@ -1084,8 +1084,7 @@ function createConversationHistorique(name, title){
 
 function createZoneMessage(content){
 
-    console.log(content)
-
+    console.log(content);
 
     $('.page2_content_right').empty();
 
@@ -1132,7 +1131,7 @@ function createZoneMessage(content){
             contentType: 'application/json',
             data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
             success: function(response) {
-                alert(response.message);
+ 
                 changeScene(2);
             },
             error: function(xhr, status, error) {
