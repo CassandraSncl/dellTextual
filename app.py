@@ -2,7 +2,42 @@ from flask import Flask, request, render_template, jsonify
 import subprocess
 import json, os
 from langchain_openai.chat_models import ChatOpenAI
+from bs4 import BeautifulSoup
+
 app = Flask(__name__)
+
+def extract_conversation_history(input_data, conversation_id):
+
+    file_path = os.path.join('data', 'conversation', f'conversation{conversation_id}.txt')
+    
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read()
+
+            soup = BeautifulSoup(content, 'html.parser')
+
+            conversation_history = []
+
+            messages = soup.find_all('div', class_='message')
+
+            for message in messages:
+                if message.find('div', class_='human-message'):
+                    human_text = message.find('p', class_='human-message-text').text
+                    conversation_history.append(f'- Human: "{human_text}"\n')
+                elif message.find('div', class_='bot-message'):
+                    bot_text = message.find('p', class_='bot-message-text').text
+                    conversation_history.append(f'- Bot: "{bot_text}"\n')
+
+            historique_conversation = ' '.join(conversation_history)
+            final_input = f"History : \n{historique_conversation}\n\nQuery: {input_data}\n\n"
+
+
+            return final_input
+    except Exception as e:
+        return "Error: " + str(e)
+
+
+
 
 def generate_summary_title(text):
     # Initialiser le modèle ChatOpenAI
@@ -25,9 +60,11 @@ def generate_summary_title(text):
     # Retourner le titre résumé
     return response.content
 
-def execute_script(script_name, input_data):
+def execute_script(script_name, input_data, conversation_id):
+
+    input_data = extract_conversation_history(input_data, conversation_id)
     result = subprocess.run(['python', f'scripts/mode_{script_name}.py', input_data], capture_output=True, text=True)
-    print(result.stdout)
+    print(result)
     output = json.loads(result.stdout)  # Charger la sortie JSON
     return output['result']
 
@@ -39,13 +76,14 @@ def index():
 def process_input():
     input_data = request.json.get('input')
     mode = request.json.get('mode')
+    conversation_id = request.json.get('numberchat')
     
     if mode == 'Movie':
-        output = execute_script('movie', input_data)
-    elif mode == 'People':
-        output = execute_script('person', input_data)
-    elif mode == 'Series':
-        output = execute_script('series', input_data)
+        output = execute_script('movie', input_data, conversation_id)
+    elif mode == 'people':
+        output = execute_script('person', input_data, conversation_id)
+    elif mode == 'series':
+        output = execute_script('series', input_data, conversation_id)
     else:
         output = 'Invalid mode'
     
@@ -59,7 +97,7 @@ def get_title():
 
 @app.route('/load_json', methods=['GET'])
 def load_json():
-    json_file_path = os.path.join('data','actuel.json')
+    json_file_path = os.path.join('data' ,'actuel.json')
     
     try:
         with open(json_file_path, 'r') as json_file:

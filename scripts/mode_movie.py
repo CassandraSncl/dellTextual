@@ -1,5 +1,3 @@
-#!/ai/Scripts/python.exe
-
 import os
 from langchain import hub
 from langchain.agents import create_structured_chat_agent,load_tools
@@ -18,7 +16,7 @@ import operator
 from langchain_core.utils.json import parse_json_markdown
 
 from langchain.tools import tool
-import requests 
+import requests
 import logging
 import json
 import sys
@@ -48,22 +46,23 @@ API_KEY_TMDB = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYWM4ZWExYTUzOWFhMGViYjY0MGU5OWQ
 
 def save_full_json(details: dict, actors: dict, movie_id: str):
     # Chemin du fichier où enregistrer le JSON complet
-    data_dir = 'data/fiches/movies'
+    data_dir = 'data/movies'
     os.makedirs(data_dir, exist_ok=True)
     file_path = os.path.join(data_dir, f"{movie_id}_details.json")
+
+
     # Créer la structure de données combinée
     full_data = {
         'details': details,
         'actors': actors
     }
-    
     # Enregistrer le JSON complet dans un fichier
     with open(file_path, 'w') as file:
         json.dump(full_data, file, indent=4)
+
     file_path_actuel = os.path.join('data', 'actuel.json')    
     with open(file_path_actuel, 'w') as file:
-        json.dump(full_data, file, indent=4)      
-
+        json.dump(full_data, file, indent=4)    
 
 def get_movie_details(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?language=en-US"
@@ -152,15 +151,18 @@ def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
 
 def create_custom_prompt():
     system = '''
-    Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+    You are a film specialist and can only answer within this topic. Understanding conversation history is crucial.
+
+    Input Format:
+    - History entries: '- Human: "Question"' and '- Bot: "Response"'.
+    - Latest query: 'Query: "Follow-up Question"'.
+
+    Infer movie names from recent dialogues if not explicitly mentioned.
+
+    Use the tools provided:
     {tools}
 
-    Use a JSON object to specify a tool by providing an "action" key (tool name) and an "action_input" key (tool input).
-    The response from each tool will be in the form of a dictionary. Your task is to extract relevant information from this dictionary and write a sentence to answer.
-
-    Valid "action" values: "Final Answer" or {tool_names}
-
-    Provide only ONE action per JSON object, as shown:
+    Specify tool using JSON with "action" and "action_input" keys. Provide only ONE action per JSON object:
 
     ```
     {{
@@ -169,10 +171,13 @@ def create_custom_prompt():
     }}
     ```
 
+    Action should be:
+    - "Final Answer" or {tool_names}
+
     Follow this format:
 
     Question: input question to answer
-    Thought: consider previous and subsequent steps, ensure you understand how to extract information from the dictionary response of the tool
+    Thought: consider conversation history, decide next steps
     Action:
     ```
     {{
@@ -180,9 +185,9 @@ def create_custom_prompt():
     "action_input": {{"query": "$INPUT"}}
     }}
     ```
-    Observation: Extract specific information from the dictionary to construct your response
-    ... (repeat Thought/Action/Observation N times)
-    Thought: I know what to respond
+    Observation: Extract and use information from tool response
+    Repeat Thought/Action/Observation as needed
+    Final Thought: Ready to answer
     Action:
     ```
     {{
@@ -191,16 +196,7 @@ def create_custom_prompt():
     }}
     ```
 
-    The final response in "action_input" must strictly be the output without any additional elements or modifications.
-
-    Begin! Reminder to ALWAYS respond with a valid JSON object for each action. Use tools if necessary. Respond directly if appropriate. Format is Action:```json
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
-    ``` then Observation.
-
-    IMPORTANT:
+    Begin! Respond with valid JSON for each action. Use tools if necessary. Respond directly if appropriate.
     '''
 
     human = '''{input}

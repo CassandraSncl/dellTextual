@@ -654,7 +654,7 @@ function sendMessage() {
             url: '/process_input',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ input: input, mode: mode }),
+            data: JSON.stringify({ input: input, mode: mode, numberchat: numberchatactuel }),
             success: function(response) {
                 addMessageBot(response.output, mode);
                 $('.chatInput').val('');
