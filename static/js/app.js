@@ -113,12 +113,12 @@ function initializeScene1() {
     let details = document.createElement('div');
     details.className = 'details_page1';
 
-        // Ajout du logo en bas à droite
-        let bottomRightLogo = document.createElement('img');
-        bottomRightLogo.src = 'static/img/logo_dell.png';
-        bottomRightLogo.alt = 'Bottom Right Logo';
-        bottomRightLogo.className = 'bottom-right-logo';
-        rightSection.appendChild(bottomRightLogo);
+    // Ajout du logo en bas à droite
+    let bottomRightLogo = document.createElement('img');
+    bottomRightLogo.src = 'static/img/logo_dell.png';
+    bottomRightLogo.alt = 'Bottom Right Logo';
+    bottomRightLogo.className = 'bottom-right-logo';
+    rightSection.appendChild(bottomRightLogo);
             
 
     let p = document.createElement('p');
@@ -142,6 +142,12 @@ function initializeScene1() {
 
     $('.btn-page1').click(function() {
         changeScene(2);
+    });
+    gsap.to(".btn-page1", {
+        opacity: 0.5,
+        duration: 1.5,
+        repeat: -1,
+        yoyo: true
     });
 }
 
@@ -397,13 +403,32 @@ function initializeScene2() {
 
         $('.chatInput').keydown(function(event) {
             if (event.keyCode === 13) {
-                event.preventDefault();
-                sendMessage();
+                var count = $('.zone-messages .message').length;
+                if ($('.zone-messages').is(':empty')) {
+                    console.log('La div zone-messages ne contient aucun élément.');
+                    event.preventDefault();
+                    sendMessage();
+                }
+                else if(count % 2 === 0 ){
+                    event.preventDefault();
+                    sendMessage();
+                    
+                }
             }
         });
     
         $('.chatSend').click(function() {
-            sendMessage();
+            var count = $('.zone-messages .message').length;
+            if ($('.zone-messages').is(':empty')) {
+                console.log('La div zone-messages ne contient aucun élément.');
+                sendMessage();
+            } 
+            else if(count % 2 === 0 ){
+                sendMessage();
+                
+            }
+            
+
         });
 
     });
@@ -699,8 +724,40 @@ function addMessageHuman(message, dataValue ) {
     messageDiv.appendChild(messageHumain);
 
     $('.zone-messages').append(messageDiv);
-
     scrollToBottom();
+
+    var count = $('.zone-messages .message').length;
+    if (count == 1){
+        $.ajax({
+            url: '/generate_summary_title',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ text: message }),
+            success: function(response) {
+                $.ajax({
+                    url: '/update_conversation_title',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ conversation_id: numberchatactuel, new_title: response.summary_title }),
+                    success: function(response) {
+                        $('.page2_content_history').empty();
+                        loadConversationTitles();
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('Failed to update conversation title.');
+                    }
+                })
+                
+            },
+            error: function(error) {
+                console.error('Error:', error);
+
+            }
+        });
+
+    }
 }
 
 function addMessageBot(message, dataValue) {
@@ -715,12 +772,9 @@ function addMessageBot(message, dataValue) {
     messageText.className = 'bot-message-text';
     messageText.textContent = message;
 
-    const detailBot = document.createElement('button');
-    detailBot.className = 'detailBot';
-    detailBot.textContent = 'Details';
 
     messageBot.appendChild(messageText);
-    messageBot.appendChild(detailBot);
+
     messageDiv.appendChild(messageBot);
 
     $('.zone-messages').append(messageDiv);
@@ -733,19 +787,38 @@ function addMessageBot(message, dataValue) {
         type: 'GET',
         contentType: 'application/json',
         success: function(response) {
-            const article = document.createElement('article');  
-            article.className = 'article';       
-            messageDiv.appendChild(article);
-            if (dataValue === 'Movie') {
-                createArticleMovie(response);
-            } else if (dataValue === 'People') {
-                createArticlePerson(response);
-            } else if (dataValue === 'Series') {
-                createArticleSeries(response);
-            } 
-            $(detailBot).click(function() {
-                $(article).toggle("active");
-            });
+            if (response === 'none') {
+                console.error('Détails non enregistrés.');
+            }
+            else{
+                
+                const detailBot = document.createElement('button');
+                detailBot.className = 'detailBot';
+                detailBot.textContent = 'Details';
+                messageBot.appendChild(detailBot);
+
+                const article = document.createElement('article');  
+                article.className = 'article';       
+                messageDiv.appendChild(article);
+                if (dataValue === 'Movie') {
+                    createArticleMovie(response);
+                } else if (dataValue === 'People') {
+                    createArticlePerson(response);
+                } else if (dataValue === 'Series') {
+                    createArticleSeries(response);
+                } 
+    
+    
+                $(detailBot).click(function() {
+                    if ($(article).hasClass('active')) {
+                        $(article).removeClass('active');
+                    } else {
+                        $(article).addClass('active');
+                    }
+                });
+
+            }
+
 
         },
         error: function(xhr, status, error) {
@@ -975,9 +1048,17 @@ function createConversation(mode){
     const conversationTitle = document.createElement('h1');
     conversationTitle.className = 'conversation-title';
     conversationTitle.textContent = 'New Chat - ' + mode;
+    const poubelle = document.createElement('img');
+    poubelle.src = 'static/img/poubelle.png';
+    poubelle.alt = 'poubelle';
+    poubelle.className = 'poubelle';
     conversation.appendChild(conversationTitle);
+    conversation.appendChild(poubelle);
+
     zone.appendChild(conversation);
     conversation.classList.add('active');
+
+
 
     $.ajax({
         url: '/save_conversation',
@@ -1025,9 +1106,27 @@ function createConversation(mode){
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-                alert('Failed to load conversation.');
+
             }
         });
+    });
+    $(poubelle).click(function() {
+        const conversationId = $(this).parent().attr('id');
+        $.ajax({
+            url: '/delete_conversation',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ conversation_id: conversationId }),
+            success: function(response) {
+                console.log(response.message);
+                changeScene(2);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+          
+            }
+        });
+    
     });
 }
 function loadConversationTitles() {
@@ -1048,14 +1147,27 @@ function loadConversationTitles() {
 
 function createConversationHistorique(name, title){
     const zone = document.querySelector('.page2_content_history');
+
     const conversation = document.createElement('div');
     conversation.id = name;
     conversation.className = 'conversation';
     const conversationTitle = document.createElement('h1');
     conversationTitle.className = 'conversation-title';
     conversationTitle.textContent = title
+
+    const poubelle = document.createElement('img');
+    poubelle.src = 'static/img/poubelle.png';
+    poubelle.alt = 'poubelle';
+    poubelle.className = 'poubelle';
     conversation.appendChild(conversationTitle);
+    conversation.appendChild(poubelle);
+
+
+    
     zone.appendChild(conversation);
+
+
+
 
     
 
@@ -1076,9 +1188,27 @@ function createConversationHistorique(name, title){
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-                alert('Failed to load conversation.');
+
             }
         });
+    });
+    $(poubelle).click(function() {
+        const conversationId = $(this).parent().attr('id');
+        $.ajax({
+            url: `/delete_conversation`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ conversation_id: conversationId }),
+            success: function(response) {
+                console.log(response.message);
+                changeScene(2);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+
+            }
+        });
+    
     });
 }
 
@@ -1087,6 +1217,8 @@ function createZoneMessage(content){
     console.log(content);
 
     $('.page2_content_right').empty();
+    $('.page2_bottom').empty();
+    $('.attention').remove();
 
     const page2ContentRight = document.querySelector('.page2_content_right');
     const page2Bottom = document.querySelector('.page2_bottom');
@@ -1099,6 +1231,12 @@ function createZoneMessage(content){
     zoneMessages.className = 'zone-messages';
     zoneMessages.innerHTML = content;
     page2ContentRight.appendChild(zoneMessages);
+
+    const menuHistoryOpen = document.createElement('img');
+    menuHistoryOpen.src = 'static/img/menu.png';
+    menuHistoryOpen.alt = 'menu-open';
+    menuHistoryOpen.className = 'menuHistoryOpen';
+    page2ContentRight.appendChild(menuHistoryOpen);
 
     const  buttonNewChat = document.createElement('button');
     buttonNewChat.className = 'buttonNewChat';
@@ -1114,6 +1252,29 @@ function createZoneMessage(content){
     jsonOutput.id = 'jsonOutput';
     page2ContentRight.appendChild(jsonOutput);
 
+    const chatText = document.createElement('div');
+    chatText.className = 'chatText';
+
+    const chatInput = document.createElement('input');
+    chatInput.type = 'text';
+    chatInput.className = 'chatInput';
+    chatInput.placeholder = 'Type a message...';
+    chatText.appendChild(chatInput);
+
+    const chatSend = document.createElement('button');
+    chatSend.className = 'chatSend';
+    chatSend.textContent = 'Send';
+    chatText.appendChild(chatSend);
+
+    const attention = document.createElement('p');
+    attention.className = 'attention';
+    attention.textContent = 'FlickFriend can make mistakes. Consider checking important information.';
+
+    page2Bottom.appendChild(chatText);
+    document.querySelector(".app_container_page").appendChild(attention);
+
+    
+
     var lastMessage = $('.zone-messages .message').last();
     var dataValue = lastMessage.attr('data-value');
 
@@ -1121,9 +1282,9 @@ function createZoneMessage(content){
     console.log(dataValue);   // Affiche le texte du bouton dans la console (pour vérification)
     createDropdown(dataValue);
     dropdownAnim();
-
     $('.buttonNewChat').click(function() {            
         const content = $('.zone-messages').html();
+
     
         $.ajax({
             url: '/save_conversation',
@@ -1131,7 +1292,7 @@ function createZoneMessage(content){
             contentType: 'application/json',
             data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
             success: function(response) {
- 
+
                 changeScene(2);
             },
             error: function(xhr, status, error) {
@@ -1139,12 +1300,66 @@ function createZoneMessage(content){
                 alert('Failed to save conversation.');
             }
         });
-
-
     });
 
     $('.scrollToTopButton').click(function() {
         scrollToTop();
+    });
+
+    $('.chatInput').keydown(function(event) {
+        if (event.keyCode === 13) {
+            var count = $('.zone-messages .message').length;
+            if ($('.zone-messages').is(':empty')) {
+                console.log('La div zone-messages ne contient aucun élément.');
+                event.preventDefault();
+                sendMessage();
+            }
+            else if(count % 2 === 0 ){
+                event.preventDefault();
+                sendMessage();
+                
+            }
+        }
+    });
+
+    $('.chatSend').click(function() {
+        var count = $('.zone-messages .message').length;
+        if ($('.zone-messages').is(':empty')) {
+            console.log('La div zone-messages ne contient aucun élément.');
+            sendMessage();
+        } 
+        else if(count % 2 === 0 ){
+            sendMessage();
+            
+        }
+        
+
+    });
+    const detail = document.querySelectorAll('.detailBot');
+    $('.detailBot').each(function() {
+        // Attacher un événement clic à chaque bouton
+        $(this).on('click', function() {
+            // Trouver le div.message parent du bouton cliqué
+            var parentMessageDiv = $(this).closest('.message');
+            
+            // Ajouter la classe 'active' à l'article dans ce div.message
+            var article = parentMessageDiv.find('article')
+            if (article.hasClass('active')) {
+                article.removeClass('active');
+            } else {
+                article.addClass('active');
+            }
+
+
+
+
+        });
+    });    
+
+    $('.menuHistoryOpen').click(function() {
+        $('.page2_content_left').toggleClass('active');
+        $(".menuHistoryOpen").toggleClass('active');
+
     });
 
 

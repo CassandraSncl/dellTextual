@@ -85,7 +85,7 @@ body {
     padding-right: 50px;
     font-size: 15px;
     cursor: pointer;
-    background-color:var(--secondary-color);
+    background-color: var(--secondary-color);
     color: var(--font-color-3);
     border: none;
     border-radius: 5px;
@@ -127,7 +127,7 @@ body {
     max-width: 650px;
     max-height: 120px;
     align-items: center;
-    background-color: var(--secondary-color);
+    background-color: rgba(222, 221, 255, 0.7);
     border-radius: 50px;
     padding-left: 10px;
     position:relative;
@@ -224,6 +224,10 @@ body {
 .conversation {
     background-color: none;
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 .conversation.active{
     background-color: var(--fourth-color);
@@ -238,6 +242,11 @@ body {
 }
 .conversation :hover{
     background-color: var(--fourth-color);
+
+}
+.poubelle{
+    width: 20px;
+    height: 20px;
 
 }
 
@@ -873,10 +882,15 @@ body {
 }
 
 .article {
-    display: none;
+    position: absolute;
+    right: 150vw;
+  
 }
-.article.active {
-    display: block;
+.article.active  {
+    position: relative;
+    right: auto;
+
+
 }
 
 /* RESPONSIVE */

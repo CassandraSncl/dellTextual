@@ -38,27 +38,56 @@ def extract_conversation_history(input_data, conversation_id):
 
 
 
-
-def generate_summary_title(text):
-    # Initialiser le modèle ChatOpenAI
-    llm = ChatOpenAI(
-        temperature=0,
-        model_name="gpt-4-1106-preview",
-        openai_api_base="http://localhost:8000/v1",
-        openai_api_key="Not needed for local server"
-    )
-    
-    # Créer le prompt pour générer un titre résumé
-    prompt = f"Résumé le texte suivant en un titre concis : {text}"
-    
-    messages = [
-        ("system", "You are a helpful assistant who creates a title of a few words based on the request. Without answering the question. Just the subject of the request"),
-        ("human", text),
-    ]
-    response = llm.invoke(messages)
-    
+@app.route('/generate_summary_title', methods=['POST'])
+def generate_summary_title():
+    text = request.json.get('text')
+    try:
+        # Initialiser le modèle ChatOpenAI
+        llm = ChatOpenAI(
+            temperature=0,
+            model_name="gpt-4-1106-preview",
+            openai_api_base="http://localhost:8000/v1",
+            openai_api_key="Not needed for local server"
+        )
+        
+        # Créer le prompt pour générer un titre résumé
+        prompt = f"Résumé le texte suivant en un titre concis : {text}"
+        
+        messages = [
+            ("system", "You are a helpful assistant who creates a title of a few words based on the request. Without answering the question. Just the subject of the request"),
+            ("human", text),
+        ]
+        response = llm.invoke(messages)
+        
     # Retourner le titre résumé
-    return response.content
+        return jsonify({'summary_title': response.content})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/update_conversation_title', methods=['POST'])
+def update_conversation_title():
+    data = request.json
+    conversation_id = f"conversation{data.get('conversation_id')}"
+    new_title = data.get('new_title')
+    historique_file_path = os.path.join('data','historique.txt')
+
+    try:
+        with open(historique_file_path, 'r') as file:
+            lines = file.readlines()
+
+        with open(historique_file_path, 'w') as file:
+            for line in lines:
+                name, title = line.strip().split(', ')
+                if name == conversation_id:
+                    file.write(f"{name}, {new_title}\n")
+                else:
+                    file.write(line)
+
+        return jsonify({'message': 'Title updated successfully.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 
 def execute_script(script_name, input_data, conversation_id):
 
@@ -78,7 +107,7 @@ def process_input():
     mode = request.json.get('mode')
     conversation_id = request.json.get('numberchat')
     
-    if mode == 'Movie':
+    if mode == 'ovie':
         output = execute_script('movie', input_data, conversation_id)
     elif mode == 'people':
         output = execute_script('person', input_data, conversation_id)
@@ -97,11 +126,17 @@ def get_title():
 
 @app.route('/load_json', methods=['GET'])
 def load_json():
-    json_file_path = os.path.join('data' ,'actuel.json')
+    json_file_path = os.path.join('data', 'actuel.json')
+    
+    if not os.path.exists(json_file_path):
+        return jsonify("none")
     
     try:
         with open(json_file_path, 'r') as json_file:
             data = json.load(json_file)
+        
+        os.remove(json_file_path)  # Supprime le fichier après l'avoir lu
+        
         return jsonify(data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -170,5 +205,35 @@ def add_to_historique():
         return jsonify({'message': 'Added to historique successfully.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+
+
+@app.route('/delete_conversation', methods=['POST'])
+def delete_conversation():
+    data = request.json
+    conversation_id = data.get('conversation_id')
+    conversation_file_path = os.path.join('data', 'conversation', f'{conversation_id}.txt')
+    historique_file_path = os.path.join('data', 'historique.txt')
+
+    try:
+        # Supprimer le fichier de conversation
+        if os.path.exists(conversation_file_path):
+            os.remove(conversation_file_path)
+
+        #Supprimer la ligne correspondante dans historique.txt
+        with open(historique_file_path, 'r') as file:
+            lines = file.readlines()
+
+        with open(historique_file_path, 'w') as file:
+            for line in lines:
+                name, title = line.strip().split(', ')
+                if name != conversation_id:
+                    file.write(line)
+
+        return jsonify({'message': 'Conversation deleted successfully.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500    
 if __name__ == '__main__':
     app.run(debug=True)
+
