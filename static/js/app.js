@@ -341,14 +341,22 @@ function initializeScene2() {
         zoneMessages.className = 'zone-messages';
         page2ContentRight.appendChild(zoneMessages);
 
-        const  buttonNewChat = document.createElement('button');
+        const buttonNewChat = document.createElement('div');
         buttonNewChat.className = 'buttonNewChat';
-        buttonNewChat.textContent = 'New Chat';
+        const imgNC = document.createElement('img');
+        imgNC.src = 'static/img/new_chat.png'; 
+        imgNC.alt = 'New Chat'; 
+        imgNC.className = 'imgNC';
+        buttonNewChat.appendChild(imgNC);
         page2Bottom.appendChild(buttonNewChat);
 
-        const topButton = document.createElement('button');
+        const topButton = document.createElement('div');
         topButton.className = 'scrollToTopButton';
-        topButton.textContent = 'Top';
+        const imgTop = document.createElement('img');
+        imgTop.src = 'static/img/top.png'; 
+        imgTop.alt = 'Scroll to Top'; 
+        imgTop.className = 'imgTop';
+        topButton.appendChild(imgTop);
         page2ContentRight.appendChild(topButton);
 
         const jsonOutput = document.createElement('pre');
@@ -358,24 +366,32 @@ function initializeScene2() {
         const chatText = document.createElement('div');
         chatText.className = 'chatText';
 
+        const chatInputContainer = document.createElement('div');
+        chatInputContainer.className = 'chatInputContainer';
+
         const chatInput = document.createElement('input');
         chatInput.type = 'text';
         chatInput.className = 'chatInput';
         chatInput.placeholder = 'Type a message...';
-        chatText.appendChild(chatInput);
+        chatInputContainer.appendChild(chatInput);
 
         const chatSend = document.createElement('button');
         chatSend.className = 'chatSend';
         chatSend.textContent = 'Send';
-        chatText.appendChild(chatSend);
+        chatInputContainer.appendChild(chatSend);
 
+        chatText.appendChild(chatInputContainer);
         const attention = document.createElement('p');
         attention.className = 'attention';
-        attention.textContent = 'FlickFriend can make mistakes. Consider checking important information.';
-
+        attention.innerHTML = 'FlickFriend can make mistakes. <br> Consider checking important information.';
+    
+        const attention2 = document.createElement('p');
+        attention2.className = 'attention2';
+        attention2.innerHTML = 'FlickFriend can make mistakes. Consider checking important information.';
+    
         page2Bottom.appendChild(chatText);
         document.querySelector(".app_container_page").appendChild(attention);
-
+        document.querySelector(".app_container_page").appendChild(attention2);
 
         $('.buttonNewChat').click(function() {            
             const content = $('.zone-messages').html();
@@ -523,12 +539,6 @@ function initializeScene3(){
     logo.className = 'page2_logo';
     header.appendChild(logo);
 
-    const appName = document.createElement('img');
-    appName.src = 'static/img/logo.png';
-    appName.className = 'appLogo';
-    appName.textContent = 'Text AI';
-    header.appendChild(appName);
-
     const linkHeader = document.createElement('div');
     linkHeader.className = 'linkHeader';
 
@@ -674,6 +684,7 @@ function sendMessage() {
         const input = $('.chatInput').val();
         const mode = localStorage.getItem('mode');
         addMessageHuman(message, mode);
+        addMessageLoading();
 
         $.ajax({
             url: '/process_input',
@@ -759,8 +770,64 @@ function addMessageHuman(message, dataValue ) {
 
     }
 }
+function addMessageLoading() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'messageLoad';
+
+    const messageBot = document.createElement('div');
+    messageBot.className = 'bot-message';
+
+    const img1 = document.createElement('img');
+    img1.src = 'static/img/typing.png';
+    img1.id = 'img1';
+    img1.className = 'typing';
+
+    const img2 = document.createElement('img');
+    img2.src = 'static/img/typing.png';
+    img2.id = 'img2';
+    img2.className = 'typing';
+
+    const img3 = document.createElement('img');
+    img3.src = 'static/img/typing.png';
+    img3.id = 'img3';
+    img3.className = 'typing';
+
+    messageBot.appendChild(img1);
+    messageBot.appendChild(img2);
+    messageBot.appendChild(img3);
+
+    messageDiv.appendChild(messageBot);
+
+    document.querySelector('.zone-messages').appendChild(messageDiv);
+
+    startAnimation();
+}
+var images = ["#img1", "#img2", "#img3"];
+var currentIndex = 0;
+
+function startAnimation() {
+    gsap.to(images[currentIndex], {opacity: 1, duration: 0.3, onComplete: fadeOutImage});
+  }
+
+function fadeOutImage() {
+gsap.to(images[currentIndex], {opacity: 0.5, duration: 0.3, delay: 0.3, onComplete: nextImage});
+}
+
+function nextImage() {
+currentIndex = (currentIndex + 1) % images.length;
+startAnimation();
+}
+
+function removeMessageLoading() {
+    $('.zone-messages .messageLoad')
+    
+    gsap.killTweensOf(images);
+
+$
+  }
 
 function addMessageBot(message, dataValue) {
+    removeMessageLoading();
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
     messageDiv.setAttribute('data-value', dataValue);
@@ -1219,6 +1286,7 @@ function createZoneMessage(content){
     $('.page2_content_right').empty();
     $('.page2_bottom').empty();
     $('.attention').remove();
+    $('.attention2').remove();
 
     const page2ContentRight = document.querySelector('.page2_content_right');
     const page2Bottom = document.querySelector('.page2_bottom');
@@ -1238,14 +1306,22 @@ function createZoneMessage(content){
     menuHistoryOpen.className = 'menuHistoryOpen';
     page2ContentRight.appendChild(menuHistoryOpen);
 
-    const  buttonNewChat = document.createElement('button');
+    const buttonNewChat = document.createElement('div');
     buttonNewChat.className = 'buttonNewChat';
-    buttonNewChat.textContent = 'New Chat';
+    const imgNC = document.createElement('img');
+    imgNC.src = 'static/img/new_chat.png'; 
+    imgNC.alt = 'New Chat'; 
+    imgNC.className = 'imgNC';
+    buttonNewChat.appendChild(imgNC);
     page2Bottom.appendChild(buttonNewChat);
 
-    const topButton = document.createElement('button');
+    const topButton = document.createElement('div');
     topButton.className = 'scrollToTopButton';
-    topButton.textContent = 'Top';
+    const imgTop = document.createElement('img');
+    imgTop.src = 'static/img/top.png'; 
+    imgTop.alt = 'Scroll to Top'; 
+    imgTop.className = 'imgTop';
+    topButton.appendChild(imgTop);
     page2ContentRight.appendChild(topButton);
 
     const jsonOutput = document.createElement('pre');
@@ -1255,24 +1331,34 @@ function createZoneMessage(content){
     const chatText = document.createElement('div');
     chatText.className = 'chatText';
 
+    const chatInputContainer = document.createElement('div');
+    chatInputContainer.className = 'chatInputContainer';
+
     const chatInput = document.createElement('input');
     chatInput.type = 'text';
     chatInput.className = 'chatInput';
     chatInput.placeholder = 'Type a message...';
-    chatText.appendChild(chatInput);
+    chatInputContainer.appendChild(chatInput);
 
     const chatSend = document.createElement('button');
     chatSend.className = 'chatSend';
     chatSend.textContent = 'Send';
-    chatText.appendChild(chatSend);
+    chatInputContainer.appendChild(chatSend);
+
+     chatText.appendChild(chatInputContainer);
+
 
     const attention = document.createElement('p');
     attention.className = 'attention';
-    attention.textContent = 'FlickFriend can make mistakes. Consider checking important information.';
+    attention.innerHTML = 'FlickFriend can make mistakes. <br> Consider checking important information.';
+
+    const attention2 = document.createElement('p');
+    attention2.className = 'attention2';
+    attention2.innerHTML = 'FlickFriend can make mistakes. Consider checking important information.';
 
     page2Bottom.appendChild(chatText);
     document.querySelector(".app_container_page").appendChild(attention);
-
+    document.querySelector(".app_container_page").appendChild(attention2);
     
 
     var lastMessage = $('.zone-messages .message').last();

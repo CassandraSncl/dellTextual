@@ -162,7 +162,8 @@ body {
     background-color: var(--primary-color);
     color: var(--font-color-1);
     width: 100%;
-    height: 10vh;
+    height: 95px;
+    min-height: 95px;
     left: 0;
     top: 0;
 }
@@ -171,7 +172,7 @@ body {
 
 .page2_logo{
     margin-left: 1em;
-    height: 3vh;
+    height: 28.5px;
     cursor: pointer;
 }
 
@@ -191,7 +192,7 @@ body {
 .page2_content{
 
     background-color: var(--background);
-    height: 80vh;
+    height: calc(100vh - 190px);
     width: 100%;
 }
 
@@ -240,7 +241,7 @@ body {
     margin-bottom: 1em;
 
 }
-.conversation :hover{
+.conversation:hover{
     background-color: var(--fourth-color);
 
 }
@@ -281,10 +282,10 @@ body {
     flex-direction: column;
     align-items: center;
     background-color: var(--background);
-    height: 80vh;
+    height: calc(100vh - 190px);
     width: 100%;
     position: absolute;
-    top:10vh;
+    top:95px;
     z-index: 10;
 }
 
@@ -311,43 +312,43 @@ body {
     background-color: var(--primary-color);
     color: var(--font-color-1);
     width: 100%;
-    height: 10vh;
+    height: 95px;
     left: 0;
     bottom: 0;
     z-index: 11;
 }
-.chatText{
+.chatText {
     display: flex;
-    flex-direction: row;
     justify-content: center;
     position: relative;
-    width: 75%;
-
+    width: 50%;
 }
-.chatInput{
+.chatInputContainer {
     position: relative;
-    width: 60%;
-    height: 40px;
+    display: flex;
+    align-items: center;
+    width: 100%;
     border: 1px solid;
     border-radius: var(--radius-10);
-    padding: 0 10px;
-    margin-top: 10px;
-    margin-left: 1em;
+    overflow: hidden;
 }
-.chatSend{
-    position: relative;
-    width: 5%;
+.chatInput {
+    flex-grow: 1;
     height: 40px;
-    border: 1px solid;
-    border-radius: var(--radius-10);
+    border: none;
     padding: 0 10px;
-    margin-top: 10px;
-    margin-left: 1em;
+    border-radius: 10px 0px 0px 10px;
+}
+.chatSend {
+    width: 10%;
+    height: 100%;
+    border: none;
+    padding: 0 10px;
     cursor: pointer;
     color: var(--font-color-2);
     background-color: var(--secondary-color);
+    border-radius: 0px 10px 10px 0px;
 }
-
 .attention{
     color: var(--secondary-color);
     font-size: 12px;
@@ -355,30 +356,41 @@ body {
     text-align: center;
     position:absolute;
     bottom: 20px;
-    right: 0;
+    right: 5px;
     z-index: 15;
-    
+
 }
+.attention2{
+    color: var(--secondary-color);
+    font-size: 12px;
+    width: 395px;
+    text-align: center;
+    position:fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    bottom: -7px;
+    display: none;
+
+}
+
 
 /* New chat */
 .buttonNewChat {
     position: absolute;
-    background-color: var(--third-color);
-    color: var(--secondary-color);
     bottom: 20px; 
     left: 50px;
     border: none; 
     border-radius: 10px; 
-    padding: 10px 20px; 
-    font-size: 16px; 
     cursor: pointer; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s; 
 }
 
-.buttonNewChat:hover {
-    background-color: var(--fourth-color); 
-    color: var(--third-color);
+
+.imgNC{
+    width: 40px;
+    height: auto;
+    margin-right: 10px;
+
 }
 
 /* Choice */
@@ -431,16 +443,21 @@ body {
 .scrollToTopButton {
     position: absolute;
     bottom: 20px;
+    width: 45px;
+    height: auto;
     right: 20px;
-    background-color: var(--third-color);
-    color: var(--secondary-color);
     border: none;
     border-radius: 10px;
-    padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
+    align-items: center;
+    display: flex;
 }
 
+.imgTop{
+    width: 40px;
+    height: auto;
+}
 
 /* MESSAGES */
 .zone-messages{
@@ -454,8 +471,8 @@ body {
 
 }
 
-.message{
-    width: 60%;
+.message, .messageLoad{
+    width: 50%;
     align-self: center;
     display:flex;
     flex-direction: column;
@@ -471,7 +488,6 @@ body {
     min-width: 10%;
     max-width: 60%;
     align-self: flex-end;
-    margin-right: 2em;
     word-wrap: break-word; 
     z-index: 10;
     
@@ -487,7 +503,6 @@ body {
     margin-top: 2em;
     padding: 10px;
     position:relative;
-    min-width: 10%;
     max-width: 80%;
     align-self: flex-start;
     margin-right: 2em;
@@ -511,6 +526,13 @@ body {
     border: none;
     top: 60px;
     z-index: 10;
+}
+
+.typing{
+    height: 7px;
+    opacity: 0.5;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 /* PAGE 2 ABOUT */
@@ -936,15 +958,15 @@ body {
 
 @media only screen and (max-width:1262px) {
     .attention{
-        bottom: 60px;
-        max-width: 800px;
-        right: 10px;
-        text-align: center;
+        display: none;
     }
+    .attention2{
+        display: block;
+    }
+    
     .chatSend{
         font-size: 12px;
-        min-width: 60px;
-        height: 40px;
+        min-width: 100px;
         bottom: 0;
     }
     .chatInput{
@@ -995,6 +1017,19 @@ body {
         align-items: center;
         left:30px;
         bottom:22px
+    }
+    .page2_about{
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        padding-top: 10em;
+        padding-bottom: 10em;
+    }
+    .page2_about_content{
+        width: 80%;
+        height: auto;
+        position: relative;
+        top:10em;
     }
 }
 
@@ -1094,6 +1129,22 @@ body {
         bottom: 10px;
         right: 10px;
     }
+    .page2_about{
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        padding-top: 10em;
+        padding-bottom: 10em;
+    }
+    .page2_about_content{
+        width: 80%;
+        height: auto;
+        position: relative;
+        top:10em;
+    }
+    .page2_content_title_about {
+        font-size: 1.7em;
+    }
 }
 
 @media only screen and (max-width:600px){
@@ -1120,6 +1171,96 @@ body {
         bottom:22px
 
     }
+    .chatSend{
+        font-size: 12px;
+        min-width: 100px;
+        bottom: 0;
+        text-align: center;
+    }
+    .page2_about{
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        padding-top: 10em;
+        padding-bottom: 10em;
+    }
+    .page2_about_content{
+        width: 80%;
+        height: auto;
+        position: relative;
+        top:12em;
+    }
+    .page2_content_title_about {
+        font-size: 1.6em;
+    }
 
 
+}
+
+@media only screen and (max-width:500px){
+    .chatSend{
+        font-size: 12px;
+        min-width: 100px;
+        bottom: 0;
+        text-align: start;
+    }
+    .page2_about{
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        padding-top: 10em;
+        padding-bottom: 10em;
+    }
+    .page2_about_content{
+        width: 80%;
+        height: auto;
+        position: relative;
+        top:15em;
+    }
+    .page2_content_title_about {
+        font-size: 1.5em;
+    }
+}
+
+@media only screen and (max-height:722px){
+    .logoFond{
+        width: 400px;
+    }
+
+}
+@media only screen and (max-height: 584px){
+    .choice img.assistant{
+        display: none;
+    }
+    .logoFond{
+        width: 350px;
+    }
+    
+}
+@media only screen and (max-height: 530px){
+    .logoFond{
+        width: 300px;
+    }
+    
+}
+@media only screen and (max-height: 474px){
+    .logoFond{
+        width: 250px;
+    }
+    
+}
+@media only screen and (max-height: 440px){
+    .logoFond{
+        display: none;
+    }
+    
+}
+
+@media only screen and (max-height:294px ){
+    .choiceText{
+        display: none;
+    }
+    .choiceButtons{
+        display: none;
+    }
 }

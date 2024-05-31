@@ -107,14 +107,14 @@ def process_input():
     mode = request.json.get('mode')
     conversation_id = request.json.get('numberchat')
     
-    if mode == 'ovie':
+    if mode == 'Movie':
         output = execute_script('movie', input_data, conversation_id)
-    elif mode == 'people':
+    elif mode == 'People':
         output = execute_script('person', input_data, conversation_id)
-    elif mode == 'series':
+    elif mode == 'Series':
         output = execute_script('series', input_data, conversation_id)
     else:
-        output = 'Invalid mode'
+        output = 'Select a mode please. Click on the buttons on the top right to switch'
     
     return jsonify({'output': output})
 
