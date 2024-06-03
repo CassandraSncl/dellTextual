@@ -90,12 +90,30 @@ def update_conversation_title():
     
 
 def execute_script(script_name, input_data, conversation_id):
-
-    input_data = extract_conversation_history(input_data, conversation_id)
-    result = subprocess.run(['python', f'scripts/mode_{script_name}.py', input_data], capture_output=True, text=True)
-    print(result)
-    output = json.loads(result.stdout)  # Charger la sortie JSON
-    return output['result']
+    error_answer = "I'm sorry but I couldn't find the answer :("
+    try:
+        input_data = extract_conversation_history(input_data, conversation_id)
+        result = subprocess.run(['python', f'scripts/mode_{script_name}.py', input_data], capture_output=True, text=True)
+        
+        # Check if the script execution failed
+        if result.returncode != 0:
+            print("Error during script execution:")
+            print(result.stderr)
+            return error_answer
+        
+        # Load the JSON output
+        output = json.loads(result.stdout)
+        
+        # Check if 'result' key is present in the output
+        if 'result' not in output:
+            return error_answer
+        
+        return output['result']
+    
+    except json.JSONDecodeError:
+        return error_answer
+    except Exception:
+        return error_answer
 
 @app.route('/')
 def index():

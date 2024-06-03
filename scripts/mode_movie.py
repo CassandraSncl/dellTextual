@@ -1,6 +1,7 @@
 import os
 from langchain import hub
-from langchain.agents import create_structured_chat_agent,load_tools
+from langchain.agents import create_structured_chat_agent
+from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain_openai.chat_models import ChatOpenAI
 from langchain.tools.tavily_search import TavilySearchResults
 from langchain_community.utilities.tavily_search import TavilySearchAPIWrapper
@@ -14,6 +15,8 @@ from langgraph.graph import END, StateGraph
 from langsmith import trace
 import operator
 from langchain_core.utils.json import parse_json_markdown
+
+from langchain_groq import ChatGroq
 
 from langchain.tools import tool
 import requests
@@ -105,15 +108,10 @@ def get_movie_credits(id):
 @tool
 def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
     """
-    Fetches detailed information about a movie from the TMDB API based on the movie title provided in the query.
-    This function retrieves the movie's detailed data sheet including its release date, synopsis, director,
-    and other relevant metadata. Additionally, it retrieves the list of the top 5 actors from the movie's cast.
-    
+    Fetches detailed information about a movie using the TMDB API based on a provided title. The function retrieves the movie's release date, synopsis, director, top 5 actors, and other metadata like revenue, budget, runtime, and genre.
     Parameters:
-    query (str): The title of the movie for which details are being fetched. This title is used to query the TMDB API.
+    query (str): The title of the movie for the query.
     
-    Returns:
-    str: A string "FINISHED" indicating that the details have been successfully retrieved and saved.
     
     Example:
     >>> get_movie("Inception")
@@ -127,13 +125,6 @@ def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
     - revenue
     - budget
     - Other relevant metadata such as runtime, genre, and more.
-    
-    Note:
-    This function calls several helper functions:
-    - get_movie_id() to retrieve the unique identifier for the movie.
-    - get_movie_details() to fetch the movie's main data sheet.
-    - get_movie_credits() to obtain the list of top actors.
-    - save_full_json() to save all the retrieved information in a JSON format.
     """
     logger.info(f"get_movie called with movie title: {query}")
     title = query
@@ -151,7 +142,6 @@ def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
 
 def create_custom_prompt():
     system = '''
-
     You are a film specialist and can only answer within this topic. Detailed understanding of the conversation history is crucial for maintaining context in follow-up questions.
 
     Expected Input Format:
@@ -159,22 +149,19 @@ def create_custom_prompt():
     - The latest query should be presented as: 'Query: "Follow-up Question"'.
 
     If the follow-up question refers to a movie previously mentioned but not explicitly named in the latest query (e.g., 'its budget?'), infer the movie name from the last relevant dialogue where it was mentioned.
-    
+    Respond to the human as helpfully and accurately as possible in your speciality. You have access to the following tools:
 
-
-    You have access to the following tools:
     {tools}
-
-    Use a JSON object to specify a tool by providing an "action" key (tool name) and an "action_input" key (tool input).
-    The response from each tool will be in the form of a dictionary. Your task is to extract relevant information from this dictionary and write a sentence to answer.
+    If you use get_movie, the return is a JSON with detail of Movie. You should search the information in the JSON to answer.
+    Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
 
     Valid "action" values: "Final Answer" or {tool_names}
 
-    Provide only ONE action per JSON object, as shown:
+    Provide only ONE action per $JSON_BLOB, as shown:
 
     ```
     {{
-    "action": "$TOOL_NAME",
+    "action": $TOOL_NAME,
     "action_input": {{"query": "$INPUT"}}
     }}
     ```
@@ -182,15 +169,12 @@ def create_custom_prompt():
     Follow this format:
 
     Question: input question to answer
-    Thought: consider previous and subsequent steps, ensure you understand how to extract information from the dictionary response of the tool
+    Thought: consider previous and subsequent steps
     Action:
     ```
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
+    $JSON_BLOB
     ```
-    Observation: Extract specific information from the dictionary to construct your response
+    Observation: action result
     ... (repeat Thought/Action/Observation N times)
     Thought: I know what to respond
     Action:
@@ -199,25 +183,14 @@ def create_custom_prompt():
     "action": "Final Answer",
     "action_input": "Final response to human"
     }}
-    ```
 
-    The final response in "action_input" must strictly be the output without any additional elements or modifications.
-
-    Begin! Reminder to ALWAYS respond with a valid JSON object for each action. Use tools if necessary. Respond directly if appropriate. Format is Action:```json
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
-    ``` then Observation.
-
-    IMPORTANT:
-    '''
+    Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
 
     {agent_scratchpad}
 
-    (reminder to respond in a JSON object no matter what)'''
+    (reminder to respond in a JSON blob no matter what)'''
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -226,6 +199,7 @@ def create_custom_prompt():
             ("human", human),
         ]
     )
+
     return prompt
 
 def get_function_tools():
@@ -245,12 +219,15 @@ tools = get_function_tools()
 prompt = create_custom_prompt()
 
 # Choose the LLM that will drive the agent
-llm = ChatOpenAI(
-    temperature=0,
-    model_name="gpt-4-1106-preview",
-    openai_api_base="http://localhost:8000/v1",
-    openai_api_key="Not needed for local server",
-)
+llm =ChatGroq(
+        api_key="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",
+        model="llama3-70b-8192")
+# llm = ChatOpenAI(
+#     temperature=0,
+#     model_name="gpt-4-1106-preview",
+#     openai_api_base="http://localhost:8000/v1",
+#     openai_api_key="Not needed for local server",
+# )
 
 # Construct the OpenAI Functions agent
 agent_runnable = create_structured_chat_agent(llm, tools, prompt)
