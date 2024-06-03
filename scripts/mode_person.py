@@ -13,6 +13,9 @@ from langgraph.prebuilt.tool_executor import ToolExecutor
 from langgraph.graph import END, StateGraph
 from langsmith import trace
 import operator
+from langchain_core.utils.json import parse_json_markdown
+
+from langchain_groq import ChatGroq
 
 from langchain.tools import tool
 import requests
@@ -73,16 +76,13 @@ def get_person_details(id):
 
 
 def get_person_id(title):
-    print(title)
     url = f"https://api.themoviedb.org/3/search/person?query={title}&include_adult=false&language=en-US&page=1"
-    print(url)
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {API_KEY_TMDB}",
     }
     response = requests.get(url, headers=headers)
     data = response.json()
-    print(data)
     return data["results"][0]["id"]
 
 def get_person_movie_credits(id):
@@ -122,24 +122,19 @@ def get_person_tv_credits(id):
     return data_actor
 
 @tool
-def get_person(name: Annotated[str, "Name of the person"]) -> dict:
+def get_person(query: Annotated[str, "Name of the person"]) -> dict:
     """
-    Fetches detailed information about a person from the TMDB API based on the name provided in the query.
-    This function retrieves the person's detailed data sheet including biography, date of birth, place of birth,
-    and other relevant metadata. Additionally, it retrieves the list of the top movies and TV series the person has
-    been involved with.
-    
-    Parameters:
-    name (str): The name of the person for which details are being fetched. This name is used to query the TMDB API.
-    
+     Retrieves detailed information about a person using the TMDB API based on a supplied name. The function retrieves the date of birth, date of death if applicable, a biography, a list of films in which the person has played, and a list of series.
+    Parameters :
+    query (str): The person's name for the query.
     Returns:
     dict: A dictionary containing 'details', 'actors_movies', and 'actors_series' keys, each holding comprehensive
     information about the person, their movie credits, and their TV series credits.
     
     Example:
     >>> get_person("Tom Hanks")
-    {'details': {...}, 'actors_movies': [...], 'actors_series': [...]}
-    
+    "FINISHED"
+
     Detailed information retrieved includes:
     - Biography
     - Date of birth
@@ -147,17 +142,9 @@ def get_person(name: Annotated[str, "Name of the person"]) -> dict:
     - List of top movies
     - List of top TV series
     - Other relevant metadata such as known for, gender, and more.
-    
-    Note:
-    This function calls several helper functions:
-    - get_person_id() to retrieve the unique identifier for the person.
-    - get_person_details() to fetch the person's main data sheet.
-    - get_person_movie_credits() to obtain the list of top movies the person has appeared in.
-    - get_person_tv_credits() to obtain the list of top TV series the person has appeared in.
-    - save_full_json() to save all the retrieved information in a JSON format.
     """
-    logger.info(f"get_person called with name: {name}")
-    name_id = get_person_id(name)
+    logger.info(f"get_person called with name: {query}")
+    name_id = get_person_id(query)
     details = get_person_details(name_id)
     actors_movies = get_person_movie_credits(name_id)
     actors_series = get_person_tv_credits(name_id)
@@ -173,19 +160,26 @@ def get_person(name: Annotated[str, "Name of the person"]) -> dict:
 
 def create_custom_prompt():
     system = '''
-    Respond to the human as helpfully and accurately as possible. You have access to the following tools:
-    {tools}
+   You are a film specialist and can only answer in that field. A detailed understanding of the history of the conversation is essential to maintain context in follow-up questions.
 
-    Use a JSON object to specify a tool by providing an "action" key (tool name) and an "action_input" key (tool input).
-    The response from each tool will be in the form of a dictionary. Your task is to extract relevant information from this dictionary to answer the human's query with sentence.
+    Expected entry format:
+    - Entries in the history are formatted as follows: '- Human: “Question”' followed by '- Bot: “Answer”'.
+    - The last query should be formatted as follows: “Query: ‘Follow-up question’”.
+
+    If the follow-up question refers to a person previously mentioned but not explicitly named in the last query (e.g. “his birthday”), deduce the person's name from the last relevant dialog where he was mentioned.
+    Answer the human in the most useful and accurate way possible in your specialty. You have access to the following tools:
+
+    {tools}
+    If you use get_person, the return is a JSON with the person's details. You'll need to look up the information in the JSON to respond.
+    Use a json blob to specify a tool by providing an action key (tool name) and an action input key (tool input).
 
     Valid "action" values: "Final Answer" or {tool_names}
 
-    Provide only ONE action per JSON object, as shown:
+    Provide only ONE action per $JSON_BLOB, as shown:
 
     ```
     {{
-    "action": "$TOOL_NAME",
+    "action": $TOOL_NAME,
     "action_input": {{"query": "$INPUT"}}
     }}
     ```
@@ -193,15 +187,12 @@ def create_custom_prompt():
     Follow this format:
 
     Question: input question to answer
-    Thought: consider previous and subsequent steps, ensure you understand how to extract information from the dictionary response of the tool
+    Thought: consider previous and subsequent steps
     Action:
     ```
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
+    $JSON_BLOB
     ```
-    Observation: Extract specific information from the dictionary to construct your response
+    Observation: action result
     ... (repeat Thought/Action/Observation N times)
     Thought: I know what to respond
     Action:
@@ -210,19 +201,8 @@ def create_custom_prompt():
     "action": "Final Answer",
     "action_input": "Final response to human"
     }}
-    ```
 
-    The final response in "action_input" must strictly be the output without any additional elements or modifications.
-
-    Begin! Reminder to ALWAYS respond with a valid JSON object for each action. Use tools if necessary. Respond directly if appropriate. Format is Action:```json
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
-    ``` then Observation.
-
-    IMPORTANT:
-    '''
+    Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
 
@@ -256,12 +236,15 @@ tools = get_function_tools()
 prompt = create_custom_prompt()
 
 # Choose the LLM that will drive the agent
-llm = ChatOpenAI(
-    temperature=0,
-    model_name="gpt-4-1106-preview",
-    openai_api_base="http://localhost:8000/v1",
-    openai_api_key="Not needed for local server",
-)
+llm =ChatGroq(
+        api_key="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",
+        model="llama3-70b-8192")
+# llm = ChatOpenAI(
+#     temperature=0,
+#     model_name="gpt-4-1106-preview",
+#     openai_api_base="http://localhost:8000/v1",
+#     openai_api_key="Not needed for local server",
+# )
 
 # Construct the OpenAI Functions agent
 agent_runnable = create_structured_chat_agent(llm, tools, prompt)

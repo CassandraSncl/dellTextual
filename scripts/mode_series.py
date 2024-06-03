@@ -13,6 +13,9 @@ from langgraph.prebuilt.tool_executor import ToolExecutor
 from langgraph.graph import END, StateGraph
 from langsmith import trace
 import operator
+from langchain_core.utils.json import parse_json_markdown
+
+from langchain_groq import ChatGroq
 
 from langchain.tools import tool
 import requests
@@ -73,16 +76,16 @@ def get_tv_details(id):
 
 
 def get_tv_id(title):
-    print(title)
+
     url = f"https://api.themoviedb.org/3/search/tv?query={title}&include_adult=false&language=en-US&page=1"
-    print(url)
+
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {API_KEY_TMDB}",
     }
     response = requests.get(url, headers=headers)
     data = response.json()
-    print(data)
+
     return data["results"][0]["id"]
 
 def get_tv_credits(id):
@@ -93,8 +96,6 @@ def get_tv_credits(id):
     }
     response = requests.get(url, headers=headers)
     data = response.json()
-    print("dekfdkdkodkofkdof")
-    print(data)
     data_actor= []
     for i in range(len(data["cast"])):
         if data["cast"][i]["order"] < 5:
@@ -104,19 +105,13 @@ def get_tv_credits(id):
 @tool
 def get_tv(title: Annotated[str, "Title of the Tv Show"]) -> dict:
     """
-    Fetches detailed information about a TV show from the TMDB API based on the title provided in the query.
-    This function retrieves the TV show's detailed data sheet including its release date, synopsis, season details,
-    and other relevant metadata. Additionally, it retrieves the list of the top actors involved in the TV show.
-    
-    Parameters:
-    title (str): The title of the TV show for which details are being fetched. This title is used to query the TMDB API.
-    
-    Returns:
-    dict: A dictionary containing 'details' and 'actors' keys, each holding comprehensive information about the TV show and its cast.
-    
+    Retrieves detailed information about a series using the TMDB API, based on a supplied title. The function retrieves the series' first and last release dates, synopsis, director, top 5 actors, and other metadata such as length of last episode, number of seasons, number of episodes and genre.
+    Parameters :
+    query (str): The series title for the query.
+
     Example:
     >>> get_tv("Stranger Things")
-    {'details': {...}, 'actors': [...]}
+    "FINISHED"
     
     Detailed information retrieved includes:
     - Last air date
@@ -131,13 +126,7 @@ def get_tv(title: Annotated[str, "Title of the Tv Show"]) -> dict:
     - Other relevant metadata such as number of episodes, genres, and more.
     - Network
     - Created By
-    
-    Note:
-    This function calls several helper functions:
-    - get_tv_id() to retrieve the unique identifier for the TV show.
-    - get_tv_details() to fetch the TV show's main data sheet.
-    - get_tv_credits() to obtain the list of top actors involved in the show.
-    - save_full_json() to save all the retrieved information in a JSON format.
+
     """
     logger.info(f"get_tv called with tv title: {title}")
     tv_id = get_tv_id(title)
@@ -154,56 +143,48 @@ def get_tv(title: Annotated[str, "Title of the Tv Show"]) -> dict:
 
 def create_custom_prompt():
     system = '''
-    Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+    You are a film specialist and can only answer in this field. A detailed understanding of the history of the conversation is essential to maintain context in follow-up questions.
+
+    Expected entry format:
+    - History entries are formatted as follows: '- Human: “Question”' followed by '- Bot: “Answer”'.
+    - The last query should be formatted as follows: 'Query: “Follow-up question”'.
+
+    If the follow-up question refers to a series mentioned previously but not explicitly named in the last query (e.g. “its budget?”), deduce the series name from the last relevant dialog where it was mentioned.
+    Answer the human in the most useful and accurate way possible in your specialty. You have access to the following tools:
+
     {tools}
+    If you use get_tv, the return is a JSON with details of the series. You need to look up the information in the JSON to respond.
+    Use a json blob to specify a tool by providing an action key (tool name) and an action input key (tool input).
 
-    Use a JSON object to specify a tool by providing an "action" key (tool name) and an "action_input" key (tool input).
-    The response from each tool will be in the form of a dictionary. Your task is to extract relevant information from this dictionary to answer the human's query with sentence.
+      Valid “action” values: “Final Answer” or {tool_names}
 
-    Valid "action" values: "Final Answer" or {tool_names}
-
-    Provide only ONE action per JSON object, as shown:
+    Provide only ONE action per $JSON_BLOB, as shown:
 
     ```
     {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
+    “action”: $TOOL_NAME,
+    “action_input”: {{“query”: “$INPUT”}}
     }}
     ```
 
     Follow this format:
 
-    Question: input question to answer
-    Thought: consider previous and subsequent steps, ensure you understand how to extract information from the dictionary response of the tool
+    Question: input question to be answered
+    Reflection: take previous and next steps into account
     Action:
     ```
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
+    $JSON_BLOB
     ```
-    Observation: Extract specific information from the dictionary to construct your response
+    Observation: action result
     ... (repeat Thought/Action/Observation N times)
-    Thought: I know what to respond
+    Thought: I know what to say
     Action:
     ```
     {{
-    "action": "Final Answer",
-    "action_input": "Final response to human"
+   “action”: “Final Answer”,
+    “action_input”: “Final response to human”
     }}
-    ```
-
-    The final response in "action_input" must strictly be the output without any additional elements or modifications.
-
-    Begin! Reminder to ALWAYS respond with a valid JSON object for each action. Use tools if necessary. Respond directly if appropriate. Format is Action:```json
-    {{
-    "action": "$TOOL_NAME",
-    "action_input": {{"query": "$INPUT"}}
-    }}
-    ``` then Observation.
-
-    IMPORTANT:
-    '''
+    Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
 
@@ -237,12 +218,15 @@ tools = get_function_tools()
 prompt = create_custom_prompt()
 
 # Choose the LLM that will drive the agent
-llm = ChatOpenAI(
-    temperature=0,
-    model_name="gpt-4-1106-preview",
-    openai_api_base="http://localhost:8000/v1",
-    openai_api_key="Not needed for local server",
-)
+llm =ChatGroq(
+        api_key="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",
+        model="llama3-70b-8192")
+# llm = ChatOpenAI(
+#     temperature=0,
+#     model_name="gpt-4-1106-preview",
+#     openai_api_base="http://localhost:8000/v1",
+#     openai_api_key="Not needed for local server",
+# )
 
 # Construct the OpenAI Functions agent
 agent_runnable = create_structured_chat_agent(llm, tools, prompt)
