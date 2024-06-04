@@ -229,6 +229,8 @@ body {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.5s;
+    padding:15px 5px;
 }
 .conversation.active{
     background-color: var(--fourth-color);
@@ -236,36 +238,43 @@ body {
 }
 .conversation-title{
     font-size: 1em;
-    font-weight: var(--font-weight-bold);
-    margin-top: 1em;
-    margin-bottom: 1em;
+    font-weight: var(--font-weight-regular);
+    margin: 0;
 
 }
 .conversation:hover{
     background-color: var(--fourth-color);
+    transition: all 0.5s;
+    img{
+        opacity: 100;
+        transition: all 0.5s;
+    }
 
 }
 .poubelle{
     width: 20px;
     height: 20px;
-
+    opacity:0;
+    transition: all 0.5s;
 }
 
 
 .menuHistoryClose, .menuHistoryOpen{
     position: absolute;
     left: 0;
-    margin-right: 1em;
-    height: 48px;
+    width: 40px;
     cursor: pointer;
+    
 }
 .menuHistoryOpen{
     display: none;
 }
-.menuHistoryOpen.active{
 
+.menuHistoryOpen.active{
     display: block;
+    align-self: end;
 }
+
 .page2_content_left.active{
     display: flex;
 }
@@ -495,6 +504,8 @@ body {
 
 .human-message-text{
     color: var(--third-color);
+    margin: 0;
+    padding: 0 5px;
 }
 
 .bot-message{
@@ -510,7 +521,8 @@ body {
 
 .bot-message-text{
     color: var(--third-color);
-
+    margin: 0;
+    padding: 0 5px;
 }
 
 
@@ -533,6 +545,7 @@ body {
     padding-left: 2px;
     padding-right: 2px;
 }
+
 
 /* PAGE 2 ABOUT */
 
@@ -634,6 +647,7 @@ body {
     border-right: 5px solid transparent;
     border-top: 6px solid var(--font-color-3);
     transition: 0.3s;
+    margin-left: 5px;
 }
 
 .caret-rotate{
@@ -689,7 +703,7 @@ body {
 .container_movie {
     display: flex;
     max-width: 800px;
-    margin: 5px auto;
+    margin: 20px auto;
     padding: 16px;
     background-color: var(--fourth-color);
     border-radius: 10px;

@@ -1,0 +1,53 @@
+{
+    "Movie": [ 
+        "Give me the main actors in The Shawshank Redemption",
+        "When was The Godfather released?",
+        "Give me the main actors in Tropic Thunder",
+        "Give me the vote of Iron Man 2?",
+        "Who directed Inception?",
+        "What is the plot of The Dark Knight?",
+        "What are some of the special effects used in Avatar?",
+        "What is the significance of the red dress in The Matrix?",
+        "Give me the main actors in the Equalizer",
+        "When was the last Toy Story released?",
+        "What is the running time of Forrest Gump?",
+        "What was the budget of Titanic?",
+        "Who composed the music for Interstellar?",
+        "What is the genre of The Shawshank Redemption?",
+        "What is the revenue of Jurassic Park?"
+    ],
+    "Series": [
+        "How many seasons are there of Game of Thrones?",
+        "When did Breaking Bad first air?",
+        "How many seasons in Stranger Things?",
+        "Who is the narrator of The Office?",
+        "How many Alice in Borderland episodes?",
+        "What are some of the most memorable episodes of Friends?",
+        "How did Stranger Things popularize the 1980s aesthetic?",
+        "What is the main theme of The Crown?",
+        "Who are the main actors in Casa de Papel?",
+        "What is the legacy of Seinfeld?",
+        "What is the main thème of The Walking Dead?",
+        "Who created The Simpsons?",
+        "What is the main theme of The Big Bang Theory?",
+        "What is the runtime of Breaking Bad?",
+        "How many Emmy Awards did Friends win?"
+    ],
+    "People": [
+        "What is Tom Hanks' most famous movie?",
+        "How many Academy Awards has Meryl Streep won?",
+        "What is Vin Diesel's birthday?",
+        "What is Clint Eastwood's signature style as a director?",
+        "What is Spielberg's most successful film franchise?",
+        "What is Angelina Jolie's humanitarian work?",
+        "What films has Leonardo DiCaprio starred in?",
+        "What is Denzel Washington's stage acting background?",
+        "What roles has Kevin Hart played?",
+        "What is Johnny Depp's most controversial role?",
+        "What is Brad Pitt's first movie?",
+        "What is the birthplace of Scarlett Johansson?",
+        "What is the real name of The Rock?",
+        "Who is the highest-paid actress in Hollywood?",
+        "What is the nationality of Charlize Theron?"
+    ]
+}

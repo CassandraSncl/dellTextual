@@ -3,6 +3,8 @@ import subprocess
 import json, os
 from langchain_openai.chat_models import ChatOpenAI
 from bs4 import BeautifulSoup
+import random
+
 
 app = Flask(__name__)
 
@@ -106,13 +108,16 @@ def execute_script(script_name, input_data, conversation_id):
         
         # Check if 'result' key is present in the output
         if 'result' not in output:
+            print(result)
             return error_answer
         
         return output['result']
     
     except json.JSONDecodeError:
+        print(result)
         return error_answer
     except Exception:
+        print(result)
         return error_answer
 
 @app.route('/')
@@ -252,7 +257,26 @@ def delete_conversation():
 
         return jsonify({'message': 'Conversation deleted successfully.'})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500    
+        return jsonify({'error': str(e)}), 500   
+
+@app.route('/load_json_question', methods=['POST'])
+def load_json_question():
+    json_file_path = os.path.join('data', 'questions.json')
+    mode = request.json.get('mode')
+    
+    if not os.path.exists(json_file_path):
+        return jsonify("none")
+    
+    try:
+        with open(json_file_path, 'r') as json_file:
+            data = json.load(json_file)
+                
+        return jsonify(random.sample(data[mode],3))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
+
 if __name__ == '__main__':
     app.run(debug=True)
 

@@ -1,4 +1,4 @@
-let previousScene = 1;
+let previousScene = 2;
 
 let numberchat = 0;
 let numberchatactuel = 0;
@@ -412,8 +412,7 @@ function initializeScene2() {
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
-                    alert("LKK")
-               
+                    alert('Failed to save conversation.');
                 }
             });
         });
@@ -661,6 +660,7 @@ function dropdownAnim() {
                     select.classList.remove("select-clicked");
                     caret.classList.remove("caret-rotate");
                     menu.classList.remove("menu-open");
+                    createRecommandation(option.innerText);
 
                     options.forEach(opt => {
                         opt.classList.remove("activedrop");
@@ -698,22 +698,8 @@ function sendMessage() {
             contentType: 'application/json',
             data: JSON.stringify({ input: input, mode: mode, numberchat: numberchatactuel }),
             success: function(response) {
-                addMessageBot(response.output, mode)
-                const content = $('.zone-messages').html();
-                $.ajax({
-                    url: '/save_conversation',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
-                    success: function(response) {
-
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error:', error);
-                    
-                    }
-                });
-                
+                addMessageBot(response.output, mode);
+                $('.chatInput').val('');
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
@@ -763,7 +749,7 @@ function addMessageHuman(message, dataValue ) {
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                    
+                        alert('Failed to update conversation title.');
                     }
                 })
                 
@@ -825,6 +811,8 @@ startAnimation();
 }
 
 function removeMessageLoading() {
+    $('.zone-messages .messageLoad')
+    
     gsap.killTweensOf(images);
     $('.zone-messages .messageLoad').remove();
     
@@ -853,14 +841,13 @@ function addMessageBot(message, dataValue) {
 
     $('.zone-messages').append(messageDiv);
 
-    scrollToBottom();
-
 
     $.ajax({
         url: '/load_json',
         type: 'GET',
         contentType: 'application/json',
         success: function(response) {
+            const content = $('.zone-messages').html();
             if (response === 'none') {
                 console.error('Détails non enregistrés.');
             }
@@ -881,26 +868,35 @@ function addMessageBot(message, dataValue) {
                 } else if (dataValue === 'Series') {
                     createArticleSeries(response);
                 } 
-    
-    
                 $(detailBot).click(function() {
                     if ($(article).hasClass('active')) {
                         $(article).removeClass('active');
+                        detailBot.textContent = 'Details';
                     } else {
                         $(article).addClass('active');
-                        scrollToBottom();
-
+                        detailBot.textContent = 'Close details';
                     }
                 });
 
             }
-
-
+            $.ajax({
+                url: '/save_conversation',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
+                success: function(response) {
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Failed to  conversation.');
+                }
+            });
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
         }
     });
+    scrollToBottom();
 
  
 }
@@ -1146,7 +1142,7 @@ function createConversation(mode){
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
-      
+            alert('Failed to save conversation.');
         }
     });
 
@@ -1161,11 +1157,13 @@ function createConversation(mode){
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
- 
+            alert('Failed to add to historique.');
         }
     });
 
     $('.conversation').click(function() {
+
+    
         const conversationId = $(this).attr('id');
         document.querySelectorAll('.conversation').forEach(conversation => {
             conversation.classList.remove('active');
@@ -1177,6 +1175,7 @@ function createConversation(mode){
             type: 'GET',
             contentType: 'application/json',
             success: function(response) {
+
                 numberchatactuel = conversationId.match(/\d+/)[0];
                 createZoneMessage(response.content);
             },
@@ -1243,11 +1242,9 @@ function createConversationHistorique(name, title){
     zone.appendChild(conversation);
 
 
-
+    $('.conversation').click(function() {
 
     
-
-    $('.conversation').click(function() {
         document.querySelectorAll('.conversation').forEach(conversation => {
             conversation.classList.remove('active');
         });
@@ -1392,7 +1389,7 @@ function createZoneMessage(content){
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-
+                alert('Failed to save conversation.');
             }
         });
     });
@@ -1463,6 +1460,7 @@ function createZoneMessage(content){
 function createRecommandation(mode){
     const page = document.querySelector('.page2_content_right');
     const recommandation = document.createElement('div');
+    recommandation.id = 'recommandationDiv';
     recommandation.className = 'recommandation';
     const recommandation1 = document.createElement("div");
     recommandation1.className = 'recommandationButton';
@@ -1470,25 +1468,28 @@ function createRecommandation(mode){
     recommandation2.className = 'recommandationButton';
     const recommandation3 = document.createElement("div");
     recommandation3.className = 'recommandationButton';
-    switch (mode) {
-        case 'Movie':
-            recommandation1.textContent = 'Give me the main actors in Equalizer';
-            recommandation2.textContent = 'When was the last Toy Story released?';
-            recommandation3.textContent = 'Give me the vote of Iron Man 2?';
-            break;
-        case 'Series':
-            recommandation1.textContent = 'How many seasons in Stranger Things?';
-            recommandation2.textContent = 'How many Alice in borderland episodes?';
-            recommandation3.textContent = 'Who are the main actors in Casa de Papel?';
-            break;
-        case 'People':
-            recommandation1.textContent = "What is Vin Diesel's birthday?";
-            recommandation2.textContent = 'What films has Leonardo DiCaprio starred in?';
-            recommandation3.textContent = 'What roles has Kevin Hart played?';
-            break;
-        default:
-            break;
-    }
+
+    $.ajax({
+        url: '/load_json_question',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ mode: mode }),
+        success: function(response) {
+            const content = $('.zone-messages').html();
+            if (response === 'none') {
+                console.error('Détails non enregistrés.');
+            }
+            else {
+                console.log(response);
+                recommandation1.textContent = response[0];
+                recommandation2.textContent = response[1];
+                recommandation3.textContent = response[2];
+            }
+        }
+    });
+
+    $("#recommandationDiv").remove()
+   
     recommandation.appendChild(recommandation1);
     recommandation.appendChild(recommandation2);
     recommandation.appendChild(recommandation3);
