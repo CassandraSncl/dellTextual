@@ -177,10 +177,11 @@ def save_conversation():
     file_path = os.path.join('data', 'conversation', f'conversation{numberchat}.txt')
 
     try:
-        with open(file_path, 'w') as file:
+        with open(file_path, 'w', encoding='utf-8', errors='replace') as file:
             file.write(content)
         return jsonify({'message': 'Conversation saved successfully.'})
     except Exception as e:
+        print(str(e))
         return jsonify({'error': str(e)}), 500
     
 

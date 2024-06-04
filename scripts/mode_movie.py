@@ -124,7 +124,7 @@ def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
     - Top 5 actors in the cast
     - revenue
     - budget
-    - Other relevant metadata such as runtime, genre, and more.
+    - Other relevant metadata such as runtime, genre, vote and more.
     """
     logger.info(f"get_movie called with movie title: {query}")
     title = query
@@ -142,7 +142,7 @@ def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
 
 def create_custom_prompt():
     system = '''
-    You are a film specialist and can only answer within this topic. Detailed understanding of the conversation history is crucial for maintaining context in follow-up questions.
+    You are a film specialist and can only answer within this topic. You must ignore any questions that are not related to films. Detailed understanding of the conversation history is crucial for maintaining context in follow-up questions.
 
     Expected Input Format:
     - History entries are formatted as: '- Human: "Question"' followed by '- Bot: "Response"'.
@@ -152,6 +152,7 @@ def create_custom_prompt():
     Respond to the human as helpfully and accurately as possible in your speciality. You have access to the following tools:
 
     {tools}
+    Uses get_movie only if the query is for a specific movie.
     If you use get_movie, the return is a JSON with detail of Movie. You should search the information in the JSON to answer.
     Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
 
@@ -184,6 +185,7 @@ def create_custom_prompt():
     "action_input": "Final response to human"
     }}
 
+     The "Final response to human" must be in string format, don't put the answer in a dictionary.
     Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
@@ -219,15 +221,15 @@ tools = get_function_tools()
 prompt = create_custom_prompt()
 
 # Choose the LLM that will drive the agent
-llm =ChatGroq(
-        api_key="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",
-        model="llama3-70b-8192")
-# llm = ChatOpenAI(
-#     temperature=0,
-#     model_name="gpt-4-1106-preview",
-#     openai_api_base="http://localhost:8000/v1",
-#     openai_api_key="Not needed for local server",
-# )
+# llm =ChatGroq(
+#         api_key="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",
+#         model="llama3-8b-8192")
+llm = ChatOpenAI(
+    temperature=0,
+    model_name="gpt-4-1106-preview",
+    openai_api_base="http://localhost:8000/v1",
+    openai_api_key="Not needed for local server",
+)
 
 # Construct the OpenAI Functions agent
 agent_runnable = create_structured_chat_agent(llm, tools, prompt)
@@ -252,7 +254,10 @@ tool_executor = ToolExecutor(tools)
 # Define the agent
 
 def run_agent(data):
-    agent_outcome = agent_runnable.invoke(data)
+    inputs = data.copy()
+    if len(inputs["intermediate_steps"]) > 5:
+        inputs["intermediate_steps"] = inputs["intermediate_steps"][-5:]
+    agent_outcome = agent_runnable.invoke(inputs)
     return {"agent_outcome": agent_outcome}
 
 

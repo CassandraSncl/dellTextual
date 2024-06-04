@@ -324,11 +324,14 @@ function initializeScene2() {
     });
 
     $('.choiceButton').click(function() {
+        $(".page2_content_left").removeClass("active")
+        $(".menuHistoryOpen").addClass('active');
         var buttonText = $(this).text();
         localStorage.setItem('mode', buttonText);
         console.log(buttonText);   // Affiche le texte du bouton dans la console (pour vérification)
         $(contentChoice).remove();
         createConversation(buttonText);
+
         createDropdown(buttonText);
         dropdownAnim();
 
@@ -392,6 +395,7 @@ function initializeScene2() {
         page2Bottom.appendChild(chatText);
         document.querySelector(".app_container_page").appendChild(attention);
         document.querySelector(".app_container_page").appendChild(attention2);
+        createRecommandation(buttonText);
 
         $('.buttonNewChat').click(function() {            
             const content = $('.zone-messages').html();
@@ -408,7 +412,8 @@ function initializeScene2() {
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
-                    alert('Failed to save conversation.');
+                    alert("LKK")
+               
                 }
             });
         });
@@ -684,6 +689,7 @@ function sendMessage() {
         const input = $('.chatInput').val();
         const mode = localStorage.getItem('mode');
         addMessageHuman(message, mode);
+        $('.chatInput').val('');
         addMessageLoading();
 
         $.ajax({
@@ -692,8 +698,7 @@ function sendMessage() {
             contentType: 'application/json',
             data: JSON.stringify({ input: input, mode: mode, numberchat: numberchatactuel }),
             success: function(response) {
-                addMessageBot(response.output, mode);
-                $('.chatInput').val('');
+                addMessageBot(response.output, mode)
                 const content = $('.zone-messages').html();
                 $.ajax({
                     url: '/save_conversation',
@@ -705,13 +710,14 @@ function sendMessage() {
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        alert('Failed to save conversation.');
+                    
                     }
                 });
                 
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
+                addMessageBot("I'm sorry but I couldn't find the answer :(", mode)
             }
         });
 
@@ -757,7 +763,7 @@ function addMessageHuman(message, dataValue ) {
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        alert('Failed to update conversation title.');
+                    
                     }
                 })
                 
@@ -819,9 +825,10 @@ startAnimation();
 }
 
 function removeMessageLoading() {
-    $('.zone-messages .messageLoad')
-    
     gsap.killTweensOf(images);
+    $('.zone-messages .messageLoad').remove();
+    
+
 
 $
   }
@@ -881,6 +888,8 @@ function addMessageBot(message, dataValue) {
                         $(article).removeClass('active');
                     } else {
                         $(article).addClass('active');
+                        scrollToBottom();
+
                     }
                 });
 
@@ -1137,7 +1146,7 @@ function createConversation(mode){
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
-            alert('Failed to save conversation.');
+      
         }
     });
 
@@ -1152,7 +1161,7 @@ function createConversation(mode){
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
-            alert('Failed to add to historique.');
+ 
         }
     });
 
@@ -1383,7 +1392,7 @@ function createZoneMessage(content){
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-                alert('Failed to save conversation.');
+
             }
         });
     });
@@ -1449,6 +1458,47 @@ function createZoneMessage(content){
     });
 
 
+}
+
+function createRecommandation(mode){
+    const page = document.querySelector('.page2_content_right');
+    const recommandation = document.createElement('div');
+    recommandation.className = 'recommandation';
+    const recommandation1 = document.createElement("div");
+    recommandation1.className = 'recommandationButton';
+    const recommandation2 = document.createElement("div");
+    recommandation2.className = 'recommandationButton';
+    const recommandation3 = document.createElement("div");
+    recommandation3.className = 'recommandationButton';
+    switch (mode) {
+        case 'Movie':
+            recommandation1.textContent = 'Give me the main actors in Equalizer';
+            recommandation2.textContent = 'When was the last Toy Story released?';
+            recommandation3.textContent = 'Give me the vote of Iron Man 2?';
+            break;
+        case 'Series':
+            recommandation1.textContent = 'How many seasons in Stranger Things?';
+            recommandation2.textContent = 'How many Alice in borderland episodes?';
+            recommandation3.textContent = 'Who are the main actors in Casa de Papel?';
+            break;
+        case 'People':
+            recommandation1.textContent = "What is Vin Diesel's birthday?";
+            recommandation2.textContent = 'What films has Leonardo DiCaprio starred in?';
+            recommandation3.textContent = 'What roles has Kevin Hart played?';
+            break;
+        default:
+            break;
+    }
+    recommandation.appendChild(recommandation1);
+    recommandation.appendChild(recommandation2);
+    recommandation.appendChild(recommandation3);
+    page.appendChild(recommandation);
+    $('.recommandationButton').click(function() {
+        var buttonText = $(this).text();
+        $('.chatInput').val(buttonText);
+        sendMessage();
+        $(recommandation).remove();
+    });
 }
 
 
