@@ -218,7 +218,7 @@ body {
     width: 95%;
     position: relative;
     z-index: 11;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: none;
 }
 
@@ -461,7 +461,7 @@ body {
 
 /* MESSAGES */
 .zone-messages{
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -524,7 +524,6 @@ body {
     background-color: var(--secondary-color);
     border-radius: 10px;
     border: none;
-    top: 60px;
     z-index: 10;
 }
 
@@ -883,7 +882,7 @@ body {
 .last-episode_series .runtime-rating {
     display: flex;
     justify-content: space-between;
-    padding-right: 80%;
+    padding-right: 50%;
 }
 
 
@@ -913,6 +912,27 @@ body {
     right: auto;
 
 
+}
+
+
+
+
+
+
+
+.recommandation{
+    display: flex;
+    justify-content: center;
+    gap: 3em;
+    margin-bottom: 1em;
+}
+
+.recommandationButton{
+    background: var(--fourth-color);
+    border-radius: var(--radius-10);
+    padding: 10px;
+    color: var(--font-color-3);
+    cursor: pointer;
 }
 
 /* RESPONSIVE */
@@ -1021,7 +1041,7 @@ body {
     .page2_about{
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
+        overflow-y: auto;
         padding-top: 10em;
         padding-bottom: 10em;
     }
@@ -1132,7 +1152,7 @@ body {
     .page2_about{
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
+        overflow-y: auto;
         padding-top: 10em;
         padding-bottom: 10em;
     }
@@ -1180,7 +1200,7 @@ body {
     .page2_about{
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
+        overflow-y: auto;
         padding-top: 10em;
         padding-bottom: 10em;
     }
@@ -1207,7 +1227,7 @@ body {
     .page2_about{
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
+        overflow-y: auto;
         padding-top: 10em;
         padding-bottom: 10em;
     }
