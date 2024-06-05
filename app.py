@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 def extract_conversation_history(input_data, conversation_id):
 
-    file_path = os.path.join('data', 'conversation', f'conversation{conversation_id}.txt')
+    file_path = os.path.join('data', 'conversation', f'conversation{conversation_id}.html')
     
     try:
         with open(file_path, 'r') as file:
@@ -94,7 +94,7 @@ def update_conversation_title():
 def execute_script(script_name, input_data, conversation_id):
     error_answer = "I'm sorry but I couldn't find the answer :("
     try:
-        input_data = extract_conversation_history(input_data, conversation_id)
+        input_data = "Histoy :   Query: " + input_data
         result = subprocess.run(['python', f'scripts/mode_{script_name}.py', input_data], capture_output=True, text=True)
         
         # Check if the script execution failed
@@ -179,24 +179,25 @@ def count_conversations():
 def save_conversation():
     content = request.json.get('content')
     numberchat = request.json.get('numberchat')
-    file_path = os.path.join('data', 'conversation', f'conversation{numberchat}.txt')
+    file_path = os.path.join('data', 'conversation', f'conversation{numberchat}.html')
 
     try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'w', encoding='utf-8', errors='replace') as file:
             file.write(content)
         return jsonify({'message': 'Conversation saved successfully.'})
     except Exception as e:
         print(str(e))
         return jsonify({'error': str(e)}), 500
-    
+
 
 @app.route('/load_conversation/<conversation_id>', methods=['GET'])
 def load_conversation(conversation_id):
-    file_path = os.path.join('data', 'conversation', f'{conversation_id}.txt')
+    file_path = os.path.join('data', 'conversation', f'{conversation_id}.html')
     
     try:
         with open(file_path, 'r') as file:
-            content = file.read()
+            content = file.read()    
         return jsonify({'content': content})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -237,7 +238,7 @@ def add_to_historique():
 def delete_conversation():
     data = request.json
     conversation_id = data.get('conversation_id')
-    conversation_file_path = os.path.join('data', 'conversation', f'{conversation_id}.txt')
+    conversation_file_path = os.path.join('data', 'conversation', f'{conversation_id}.html')
     historique_file_path = os.path.join('data', 'historique.txt')
 
     try:

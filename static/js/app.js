@@ -399,22 +399,7 @@ function initializeScene2() {
 
         $('.buttonNewChat').click(function() {            
             const content = $('.zone-messages').html();
-
-        
-            $.ajax({
-                url: '/save_conversation',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
-                success: function(response) {
-
-                    changeScene(2);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                    alert('Failed to save conversation.');
-                }
-            });
+            saveConversation(numberchatactuel, true);
         });
 
         $('.scrollToTopButton').click(function() {
@@ -879,18 +864,7 @@ function addMessageBot(message, dataValue) {
                 });
 
             }
-            $.ajax({
-                url: '/save_conversation',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
-                success: function(response) {
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                    alert('Failed to  conversation.');
-                }
-            });
+            saveConversation(numberchatactuel, false);
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
@@ -1130,21 +1104,7 @@ function createConversation(mode){
     zone.appendChild(conversation);
     conversation.classList.add('active');
 
-
-
-    $.ajax({
-        url: '/save_conversation',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ content: "", numberchat: numberchat }),
-        success: function(response) {
-
-        },
-        error: function(xhr, status, error) {
-            console.error('Error:', error);
-            alert('Failed to save conversation.');
-        }
-    });
+    saveConversation(numberchat, false);
 
 
     $.ajax({
@@ -1177,6 +1137,7 @@ function createConversation(mode){
             success: function(response) {
 
                 numberchatactuel = conversationId.match(/\d+/)[0];
+                console.log(response.content);
                 createZoneMessage(response.content);
             },
             error: function(xhr, status, error) {
@@ -1257,6 +1218,7 @@ function createConversationHistorique(name, title){
             contentType: 'application/json',
             success: function(response) {
                 numberchatactuel = conversationId.match(/\d+/)[0];
+                console.log(response.content);
                 createZoneMessage(response.content);
             },
             error: function(xhr, status, error) {
@@ -1287,7 +1249,10 @@ function createConversationHistorique(name, title){
 
 function createZoneMessage(content){
 
+
+    content = content.replace(/â€¯/g, ' ');
     console.log(content);
+    
 
     $('.page2_content_right').empty();
     $('.page2_bottom').empty();
@@ -1375,23 +1340,7 @@ function createZoneMessage(content){
     createDropdown(dataValue);
     dropdownAnim();
     $('.buttonNewChat').click(function() {            
-        const content = $('.zone-messages').html();
-
-    
-        $.ajax({
-            url: '/save_conversation',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ content: content, numberchat: numberchatactuel }),
-            success: function(response) {
-
-                changeScene(2);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-                alert('Failed to save conversation.');
-            }
-        });
+        saveConversation(numberchatactuel, true);
     });
 
     $('.scrollToTopButton').click(function() {
@@ -1438,13 +1387,13 @@ function createZoneMessage(content){
             var article = parentMessageDiv.find('article')
             if (article.hasClass('active')) {
                 article.removeClass('active');
+                this.textContent = 'Details';
+
             } else {
                 article.addClass('active');
+                this.textContent = 'Close details';
+
             }
-
-
-
-
         });
     });    
 
@@ -1504,3 +1453,33 @@ function createRecommandation(mode){
 
 
 
+function saveConversation(numberchatactuel, change) {
+    // Get the entire HTML content of the page
+    var htmlContent = document.querySelector('.zone-messages')
+    if (htmlContent === null) {
+        return;
+    }
+    
+    htmlContent = htmlContent.outerHTML
+
+    // Send the HTML content to the Flask server
+    $.ajax({
+        url: '/save_conversation',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 
+            content: htmlContent, 
+            numberchat: numberchatactuel 
+        }),
+        success: function(response) {
+            if (change){
+                changeScene(2);
+            
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('Failed to save conversation.');
+        }
+    });
+}

@@ -22,12 +22,12 @@ import requests
 import logging
 import json
 import sys
-
+import random
 
 # Set environment variables
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = "Multi-agent Collaboration"
-os.environ["LANGCHAIN_API_KEY"] = "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"
+os.environ["LANGCHAIN_API_KEY"] = "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"
 os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 
 
@@ -101,6 +101,115 @@ def get_tv_credits(id):
         if data["cast"][i]["order"] < 5:
             data_actor.append((data["cast"][i]["name"], data["cast"][i]["character"]))
     return data_actor
+
+# def get_tv_recommandation(name):
+#     id_tv = get_tv_id(name)
+#     url = f"https://api.themoviedb.org/3/tv/{id_tv}/recommendations?language=en-US&page=1"
+
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYWM4ZWExYTUzOWFhMGViYjY0MGU5OWQ4Zjg1NmRmNyIsInN1YiI6IjY2NDVjNDUxMzJhZmYxMDA5YjVjMTI2OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.2iaGeBzCSVKz7LcS0Cdi3dv4k5Ws8ykNh-amI0NVuwo"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+
+#     results = data["results"]
+#     sample_size = min(len(results), 10)
+#     random_results = random.sample(results, sample_size)
+
+#     data_list = []
+#     for result in random_results:
+#         data_list.append(result["name"])
+#     return data_list
+
+# def get_tv_popular():
+#     url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+    
+#     results = data["results"]
+#     sample_size = min(len(results), 10)
+#     random_results = random.sample(results, sample_size)
+    
+#     data_list = []
+#     for result in random_results:
+#         data_list.append({
+#             "name": result["name"],
+#             "popularity": result["popularity"]
+#         })
+        
+#     return data_list
+
+# def get_genre_list():
+#     url = "https://api.themoviedb.org/3/genre/movie/list?language=en-US"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+#     genre_dict = {genre["name"]: genre["id"] for genre in data["genres"]}
+#     return genre_dict
+
+# def get_tv_popular_list():
+#     url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+#     return data["results"]
+
+# def get_tv_recommendation_genre(genre_name):
+#     genre_dict = get_genre_list()
+#     if genre_name not in genre_dict:
+#         return []
+#     genre_id = genre_dict[genre_name]
+#     rec = get_tv_popular_list()
+#     data = []
+#     for tv in rec:
+#         if genre_id in tv["genre_ids"]:
+#             data.append(tv["name"])
+#     return data
+
+# def get_tv_recommendation_genre_name(title_substring, genre_name):
+#     identifiant = get_tv_id(title_substring)
+#     print(identifiant)
+#     if not identifiant:
+#         return f"No TV series found with title containing '{title_substring}'"
+    
+#     url = f"https://api.themoviedb.org/3/tv/{identifiant}/similar?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+    
+#     genre_dict = get_genre_list()
+#     print(genre_dict)
+#     if genre_name not in genre_dict:
+#         return f"Genre '{genre_name}' not found"
+    
+#     genre_id = genre_dict[genre_name]
+#     similar_shows = data['results']
+    
+#     filtered_shows = [show for show in similar_shows if genre_id in show['genre_ids']]    
+#     if not filtered_shows:
+#         return f"No similar shows found in the genre '{genre_name}'"
+    
+#     sample_size = min(len(filtered_shows), 5)
+#     random_show = random.sample(filtered_shows, sample_size)
+#     recommended_tv = [movie["name"] for movie in random_show]
+
+#     return recommended_tv
+
+
 
 @tool
 def get_tv(title: Annotated[str, "Title of the Tv Show"]) -> dict:
@@ -184,6 +293,7 @@ def create_custom_prompt():
    “action”: “Final Answer”,
     “action_input”: “Final response to human”
     }}
+    The "Final response to human" must be in string format, don't put the answer in a dictionary.
     Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
@@ -220,7 +330,7 @@ prompt = create_custom_prompt()
 # Choose the LLM that will drive the agent
 llm =ChatGroq(
         api_key="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",
-        model="llama3-70b-8192")
+        model="llama3-8b-8192")
 # llm = ChatOpenAI(
 #     temperature=0,
 #     model_name="gpt-4-1106-preview",

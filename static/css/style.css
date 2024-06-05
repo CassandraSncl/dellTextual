@@ -703,7 +703,7 @@ body {
 .container_movie {
     display: flex;
     max-width: 800px;
-    margin: 20px auto;
+    margin: 25px auto;
     padding: 16px;
     background-color: var(--fourth-color);
     border-radius: 10px;
@@ -772,7 +772,7 @@ body {
     display: flex;
     flex-direction: row;
     max-width: 800px;
-    margin: 5px auto;
+    margin: 25px auto;
     padding: 16px;
     background-color: var(--fourth-color);
     border-radius: 10px;
@@ -836,7 +836,7 @@ body {
 .container_series {
     display: flex;
     max-width: 800px;
-    margin: 5px auto;
+    margin: 25px auto;
     padding: 16px;
     background-color: var(--fourth-color);
     border-radius: 10px;

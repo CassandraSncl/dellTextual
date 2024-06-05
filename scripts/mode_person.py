@@ -27,7 +27,7 @@ import sys
 # Set environment variables
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = "Multi-agent Collaboration"
-os.environ["LANGCHAIN_API_KEY"] = "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"
+os.environ["LANGCHAIN_API_KEY"] = "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"
 os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 
 
@@ -85,6 +85,7 @@ def get_person_id(title):
     data = response.json()
     return data["results"][0]["id"]
 
+
 def get_person_movie_credits(id):
     url = f"https://api.themoviedb.org/3/person/{id}/movie_credits?language=en-US"
     headers = {
@@ -93,14 +94,14 @@ def get_person_movie_credits(id):
     }
     response = requests.get(url, headers=headers)
     data = response.json()
-    data_actor= []
+    data_actor = []
     if len(data["cast"]) < 5:
         limit = len(data["cast"])
     else:
         limit = 5    
     for i in range(limit):
         if data["cast"][i]["order"] < 5:
-            data_actor.append((data["cast"][i]["original_title"], data["cast"][i]["character"]))
+            data_actor.append((data["cast"][i]["id"], data["cast"][i]["original_title"], data["cast"][i]["character"]))
     return data_actor
 
 def get_person_tv_credits(id):
@@ -111,15 +112,89 @@ def get_person_tv_credits(id):
     }
     response = requests.get(url, headers=headers)
     data = response.json()
-    data_actor= []
+    data_actor = []
     if len(data["cast"]) < 5:
         limit = len(data["cast"])
     else:
         limit = 5   
     for i in range(limit):
         if data["cast"][i]["episode_count"] > 5:
-            data_actor.append((data["cast"][i]["name"], data["cast"][i]["character"]))
+            data_actor.append((data["cast"][i]["id"], data["cast"][i]["name"], data["cast"][i]["character"]))
     return data_actor
+
+
+# def recommend_similar_tv_shows(tv_show_ids):
+#     recommendations = []
+#     for tv_show_id in tv_show_ids:
+#         url = f"https://api.themoviedb.org/3/tv/{tv_show_id}/recommendations?language=en-US"
+#         headers = {
+#             "accept": "application/json",
+#             "Authorization": f"Bearer {API_KEY_TMDB}",
+#         }
+#         response = requests.get(url, headers=headers)
+#         if response.status_code == 200:
+#             data = response.json()
+#             recommendations.extend(data["results"])
+#         else:
+#             print(f"Failed to fetch recommendations for TV show ID {tv_show_id}")
+
+#     # Eliminer les doublons par ID de série
+#     unique_recommendations = {rec['id']: rec for rec in recommendations}.values()
+
+#     # Trier par popularité décroissante et prendre les 5 premiers
+#     sorted_recommendations = sorted(unique_recommendations, key=lambda x: x["popularity"], reverse=True)
+    
+#     # Renvoyer seulement les titres des séries recommandées
+#     recommended_titles = [rec["name"] for rec in sorted_recommendations[:5]]
+#     return recommended_titles
+
+# def recommend_similar_movies(movie_ids):
+#     recommendations = []
+#     for movie_id in movie_ids:
+#         url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations?language=en-US"
+#         headers = {
+#             "accept": "application/json",
+#             "Authorization": f"Bearer {API_KEY_TMDB}",
+#         }
+#         response = requests.get(url, headers=headers)
+#         if response.status_code == 200:
+#             data = response.json()
+#             recommendations.extend(data["results"])
+#         else:
+#             print(f"Failed to fetch recommendations for movie ID {movie_id}")
+
+#     # Eliminer les doublons par ID de film
+#     unique_recommendations = {rec['id']: rec for rec in recommendations}.values()
+
+#     # Trier par popularité décroissante et prendre les 5 premiers
+#     sorted_recommendations = sorted(unique_recommendations, key=lambda x: x["popularity"], reverse=True)
+#     recommended_titles = [rec["title"] for rec in sorted_recommendations[:5]]
+
+#     return recommended_titles
+
+
+
+# def get_recommendations_based_on_person(person_name):
+#     # Obtenir l'ID de la personne
+#     person_id = get_person_id(person_name)
+    
+#     # Obtenir les crédits de films et de séries
+#     movie_credits = get_person_movie_credits(person_id)
+#     tv_credits = get_person_tv_credits(person_id)
+    
+#     # Extraire les IDs des films et séries les plus populaires (limité à 5)
+#     movie_ids = [movie[0] for movie in movie_credits[:5]]
+#     tv_show_ids = [tv_show[0] for tv_show in tv_credits[:5]]
+    
+#     # Obtenir des recommandations basées sur ces films et séries
+#     movie_recommendations = recommend_similar_movies(movie_ids)
+#     tv_show_recommendations = recommend_similar_tv_shows(tv_show_ids)
+    
+#     return {
+#         "movies": movie_recommendations,
+#         "tv_shows": tv_show_recommendations
+# }
+
 
 @tool
 def get_person(query: Annotated[str, "Name of the person"]) -> dict:
@@ -201,7 +276,7 @@ def create_custom_prompt():
     "action": "Final Answer",
     "action_input": "Final response to human"
     }}
-
+    The "Final response to human" must be in string format, don't put the answer in a dictionary.
     Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
@@ -238,7 +313,7 @@ prompt = create_custom_prompt()
 # Choose the LLM that will drive the agent
 llm =ChatGroq(
         api_key="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",
-        model="llama3-70b-8192")
+        model="llama3-8b-8192")
 # llm = ChatOpenAI(
 #     temperature=0,
 #     model_name="gpt-4-1106-preview",

@@ -14,7 +14,8 @@ from langgraph.prebuilt.tool_executor import ToolExecutor
 from langgraph.graph import END, StateGraph
 from langsmith import trace
 import operator
-from langchain_core.utils.json import parse_json_markdown
+from langchain_core.utils.json import parse_json_markdown 
+import random
 
 from langchain_groq import ChatGroq
 
@@ -29,7 +30,7 @@ import sys
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = "Multi-agent Collaboration"
-os.environ["LANGCHAIN_API_KEY"] = "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"
+os.environ["LANGCHAIN_API_KEY"] = "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"
 os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 
 
@@ -105,6 +106,117 @@ def get_movie_credits(id):
             data_actor.append((data["cast"][i]["name"], data["cast"][i]["character"]))
     return data_actor
 
+# def get_movie_recommandation(title):
+#     movie_id = get_movie_id(title)
+#     url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}",
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+
+#     results = data["results"]
+#     sample_size = min(len(results), 10)
+#     random_results = random.sample(results, sample_size)
+
+#     data_list = []
+#     for result in random_results:
+#         data_list.append(result["title"])
+#     return data_list
+
+
+# def get_movie_popular():
+#     url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+    
+#     results = data["results"]
+#     sample_size = min(len(results), 10)
+#     random_results = random.sample(results, sample_size)
+    
+#     data_list = []
+#     for result in random_results:
+#         data_list.append({
+#             "title": result["title"],
+#             "popularity": result["popularity"]
+#         })
+        
+#     return data_list
+
+# def get_movie_popular_list():
+#     url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+#     return data["results"]
+
+
+# def get_genre_list():
+#     url = "https://api.themoviedb.org/3/genre/movie/list?language=en-US"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+#     genre_dict = {genre["name"]: genre["id"] for genre in data["genres"]}
+#     return genre_dict
+
+# def get_movie_recommendation_genre(genre_name):
+#     genre_dict = get_genre_list()
+#     if genre_name not in genre_dict:
+#         return []
+#     genre_id = genre_dict[genre_name]
+#     rec = get_movie_popular_list()
+#     data = []
+#     for movie in rec:
+#         if genre_id in movie["genre_ids"]:
+#             data.append(movie["title"])
+#     return data
+
+
+# def get_movie_recommendation_genre_name(title_substring, genre_name):
+#     identifiant = get_movie_id(title_substring)
+#     if not identifiant:
+#         return []
+
+#     url = f"https://api.themoviedb.org/3/movie/{identifiant}/similar?language=en-US&page=1"
+#     headers = {
+#         "accept": "application/json",
+#         "Authorization": f"Bearer {API_KEY_TMDB}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     data = response.json()
+
+#     genre_dict = get_genre_list()
+#     if genre_name not in genre_dict:
+#         return []
+
+#     genre_id = genre_dict[genre_name]
+#     similar_movies = data["results"]
+    
+#     filtered_movies = [movie for movie in similar_movies if genre_id in movie["genre_ids"]]
+
+#     if not filtered_movies:
+#         return []
+
+#     # Prendre 5 films aléatoires parmi ceux qui correspondent au genre
+#     sample_size = min(len(filtered_movies), 5)
+#     random_movies = random.sample(filtered_movies, sample_size)
+
+#     recommended_movies = [movie["title"] for movie in random_movies]
+    
+#     return recommended_movies
+    
+    
 @tool
 def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
     """
@@ -124,6 +236,7 @@ def get_movie(query: Annotated[str, "Title of the movie"]) -> dict:
     - Top 5 actors in the cast
     - revenue
     - budget
+    - Other relevant metadata such as runtime, genre, vote and more.
     - Other relevant metadata such as runtime, genre, vote and more.
     """
     logger.info(f"get_movie called with movie title: {query}")
@@ -185,7 +298,6 @@ def create_custom_prompt():
     "action_input": "Final response to human"
     }}
 
-     The "Final response to human" must be in string format, don't put the answer in a dictionary.
     Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation'''
 
     human = '''{input}
@@ -221,15 +333,15 @@ tools = get_function_tools()
 prompt = create_custom_prompt()
 
 # Choose the LLM that will drive the agent
-# llm =ChatGroq(
-#         api_key="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",
-#         model="llama3-8b-8192")
-llm = ChatOpenAI(
-    temperature=0,
-    model_name="gpt-4-1106-preview",
-    openai_api_base="http://localhost:8000/v1",
-    openai_api_key="Not needed for local server",
-)
+llm =ChatGroq(
+        api_key="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",
+        model="llama3-8b-8192")
+# llm = ChatOpenAI(
+#     temperature=0,
+#     model_name="gpt-4-1106-preview",
+#     openai_api_base="http://localhost:8000/v1",
+#     openai_api_key="Not needed for local server",
+# )
 
 # Construct the OpenAI Functions agent
 agent_runnable = create_structured_chat_agent(llm, tools, prompt)
