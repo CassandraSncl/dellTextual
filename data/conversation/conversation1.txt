@@ -1,1 +1,0 @@
-<div class="message" data-value="Movie"><div class="human-message"><p class="human-message-text">jgjjgjg</p></div></div><div class="message" data-value="Movie"><div class="bot-message"><p class="bot-message-text">Invalid mode</p></div></div>

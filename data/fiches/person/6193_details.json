@@ -1,0 +1,67 @@
+{
+    "details": {
+        "adult": false,
+        "also_known_as": [
+            "\u041b\u0435\u043e\u043d\u0430\u0440\u0434\u043e \u0414\u0438\u041a\u0430\u043f\u0440\u0438\u043e",
+            "\u0644\u064a\u0648\u0646\u0627\u0631\u062f\u0648 \u062f\u064a \u0643\u0627\u0628\u0631\u064a\u0648",
+            "\ub808\uc624\ub098\ub974\ub3c4 \ub514\uce74\ud504\ub9ac\uc624",
+            "\u30ec\u30aa\u30ca\u30eb\u30c9\u30fb\u30c7\u30a3\u30ab\u30d7\u30ea\u30aa",
+            "\u0e25\u0e35\u0e42\u0e2d\u0e19\u0e32\u0e23\u0e4c\u0e42\u0e14 \u0e14\u0e34\u0e41\u0e04\u0e1e\u0e23\u0e35\u0e42\u0e2d",
+            "\u83b1\u6602\u7eb3\u591a\u00b7\u8fea\u5361\u666e\u91cc\u5965",
+            "Leo DiCaprio",
+            "Leonardo Wilhelm DiCaprio",
+            "\u039b\u03b5\u03bf\u03bd\u03ac\u03c1\u03bd\u03c4\u03bf \u039d\u03c4\u03b9 \u039a\u03ac\u03c0\u03c1\u03b9\u03bf",
+            "\u039d\u03c4\u03b9 \u039a\u03ac\u03c0\u03c1\u03b9\u03bf",
+            "\u041b\u0435\u043e\u043d\u0430\u0440\u0434\u043e \u0414\u0456\u041a\u0430\u043f\u0440\u0456\u043e",
+            "\u05dc\u05d0\u05d5\u05e0\u05e8\u05d3\u05d5 \u05d3\u05d9\u05e7\u05e4\u05e8\u05d9\u05d5",
+            "\u0d32\u0d3f\u0d2f\u0d28\u0d3e\u0d7c\u0d21\u0d4b \u0d21\u0d3f\u0d15\u0d3e\u0d2a\u0d4d\u0d30\u0d3f\u0d2f\u0d4b",
+            "Leonardo Di Caprio",
+            "\u10da\u10d4\u10dd\u10dc\u10d0\u10e0\u10d3\u10dd \u10d3\u10d8\u10d9\u10d0\u10de\u10e0\u10d8\u10dd",
+            "\u674e\u5967\u7d0d\u591a\u00b7\u72c4\u5361\u76ae\u6b50"
+        ],
+        "biography": "Leonardo Wilhelm DiCaprio (born November 11, 1974) is an American actor and film producer. Known for his work in biopics and period films, DiCaprio is the recipient of numerous accolades, including an Academy Award, a British Academy Film Award, and three Golden Globe Awards. As of 2019, his films have grossed over $7.2 billion worldwide, and he has been placed eight times in annual rankings of the world's highest-paid actors.\n\nBorn in Los Angeles, DiCaprio began his career in the late 1980s by appearing in television commercials. In the early 1990s, he had recurring roles in various television shows, such as the sitcom Parenthood, and had his first major film part as author Tobias Wolff in This Boy's Life (1993). At age 19, he received critical acclaim and his first Academy Award and Golden Globe Award nominations for his performance as a developmentally disabled boy in What's Eating Gilbert Grape (1993). He achieved international stardom with the star-crossed romances Romeo + Juliet (1996) and Titanic (1997).\n\nAfter the latter became the highest-grossing film at the time, he reduced his workload for a few years. In an attempt to shed his image of a romantic hero, DiCaprio sought roles in other genres, including crime drama in Catch Me If You Can (2002) and Gangs of New York (2002); the latter marked the first of his many successful collaborations with director Martin Scorsese. DiCaprio portrayed Howard Hughes in The Aviator (2004) and received acclaim for his performances in the political thriller Blood Diamond (2006), the crime drama The Departed (2006), and the romantic drama Revolutionary Road (2008).\n\nIn the following decade, DiCaprio starred in several high-profile directors' projects, including the science fiction thriller Inception (2010), the western Django Unchained (2012), the biopic The Wolf of Wall Street (2013), the survival drama The Revenant (2015), for which he won an Academy Award and a BAFTA Award for Best Actor in a Leading Role, and the comedy-drama Once Upon a Time in Hollywood (2019), all of which were critical and commercial successes.\n\nDiCaprio is the founder of Appian Way Productions, a production company that has produced some of his films and the documentary series Greensburg (2008\u20132010), and the Leonardo DiCaprio Foundation, a nonprofit organization devoted to promoting environmental awareness. He regularly supports charitable causes and has produced several documentaries on the environment. In 2005, he was named a Commander of the Ordre des Arts et des Lettres for his contributions to the arts, and in 2016, he appeared in Time magazine's 100 most influential people in the world.",
+        "birthday": "1974-11-11",
+        "deathday": null,
+        "gender": 2,
+        "homepage": null,
+        "id": 6193,
+        "imdb_id": "nm0000138",
+        "known_for_department": "Acting",
+        "name": "Leonardo DiCaprio",
+        "place_of_birth": "Los Angeles, California, USA",
+        "popularity": 106.161,
+        "profile_path": "/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg"
+    },
+    "actors_series": [
+        [
+            "Romeo + Juliet",
+            "Romeo"
+        ],
+        [
+            "Titanic",
+            "Jack Dawson"
+        ],
+        [
+            "Blood Diamond",
+            "Danny Archer"
+        ],
+        [
+            "What's Eating Gilbert Grape",
+            "Arnie Grape"
+        ],
+        [
+            "The Beach",
+            "Richard"
+        ]
+    ],
+    "actors_tv": [
+        [
+            "Growing Pains",
+            "Luke Brower"
+        ],
+        [
+            "Parenthood",
+            "Garry Buckman-Lampkin"
+        ]
+    ]
+}

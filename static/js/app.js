@@ -397,7 +397,8 @@ function initializeScene2() {
         document.querySelector(".app_container_page").appendChild(attention2);
         createRecommandation(buttonText);
 
-        $('.buttonNewChat').click(function() {            
+        $('.buttonNewChat').click(function() {       
+            actualiseTitle(numberchatactuel);     
             const content = $('.zone-messages').html();
             saveConversation(numberchatactuel, true);
         });
@@ -668,6 +669,7 @@ function scrollToBottom() {
 }
 
 function sendMessage() {
+
     const message = $('.chatInput').val();
     if (message.trim() !== '') {
 
@@ -697,6 +699,7 @@ function sendMessage() {
 }
 
 function addMessageHuman(message, dataValue ) {
+    saveConversation(numberchatactuel, false)
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
     messageDiv.setAttribute('data-value', dataValue);
@@ -734,7 +737,6 @@ function addMessageHuman(message, dataValue ) {
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        alert('Failed to update conversation title.');
                     }
                 })
                 
@@ -1117,11 +1119,12 @@ function createConversation(mode){
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
-            alert('Failed to add to historique.');
         }
     });
 
     $('.conversation').click(function() {
+
+        actualiseTitle(numberchatactuel)
 
     
         const conversationId = $(this).attr('id');
@@ -1135,6 +1138,7 @@ function createConversation(mode){
             type: 'GET',
             contentType: 'application/json',
             success: function(response) {
+                actualiseTitle(numberchatactuel)
 
                 numberchatactuel = conversationId.match(/\d+/)[0];
                 console.log(response.content);
@@ -1217,6 +1221,7 @@ function createConversationHistorique(name, title){
             type: 'GET',
             contentType: 'application/json',
             success: function(response) {
+                actualiseTitle(numberchatactuel)
                 numberchatactuel = conversationId.match(/\d+/)[0];
                 console.log(response.content);
                 createZoneMessage(response.content);
@@ -1339,8 +1344,11 @@ function createZoneMessage(content){
     console.log(dataValue);   // Affiche le texte du bouton dans la console (pour vérification)
     createDropdown(dataValue);
     dropdownAnim();
-    $('.buttonNewChat').click(function() {            
+    $('.buttonNewChat').click(function() {        
+        actualiseTitle(numberchatactuel);    
         saveConversation(numberchatactuel, true);
+        
+        
     });
 
     $('.scrollToTopButton').click(function() {
@@ -1479,7 +1487,36 @@ function saveConversation(numberchatactuel, change) {
         },
         error: function(xhr, status, error) {
             console.error('Error:', error);
-            alert('Failed to save conversation.');
+        }
+    });
+}
+
+function actualiseTitle(numberchatactuel){
+    $.ajax({
+        url: '/generate_summary_title_final',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ id: numberchatactuel }),
+        success: function(response) {
+            $.ajax({
+                url: '/update_conversation_title',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ conversation_id: numberchatactuel, new_title: response.summary_title }),
+                success: function(response) {
+                    $('.page2_content_history').empty();
+                    loadConversationTitles();
+
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            })
+            
+        },
+        error: function(error) {
+            console.error('Error:', error);
+
         }
     });
 }

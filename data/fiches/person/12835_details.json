@@ -1,0 +1,50 @@
+{
+    "details": {
+        "adult": false,
+        "also_known_as": [
+            "Mark Sinclair Vincent",
+            "Mark Vincent",
+            "\u0641\u0627\u0646 \u062f\u064a\u0632\u0644",
+            "\u0e27\u0e34\u0e19 \u0e14\u0e35\u0e40\u0e0b\u0e25",
+            "\u30f4\u30a3\u30f3\u30fb\u30c7\u30a3\u30fc\u30bc\u30eb",
+            "\ube48 \ub514\uc824",
+            "\u99ae\u00b7\u8fea\u7d22",
+            "\u0392\u03b9\u03bd \u039d\u03c4\u03af\u03b6\u03b5\u03bb",
+            "\u8303\u00b7\u8fea\u585e\u5c14",
+            "\u0d35\u0d3f\u0d7b \u0d21\u0d40\u0d38\u0d7d",
+            "Mark Sinclair",
+            "\u0412\u0456\u043d \u0414\u0438\u0437\u0435\u043b\u044c"
+        ],
+        "biography": "Mark Sinclair (born July 18, 1967), known professionally as Vin Diesel, is an American actor and producer. One of the world's highest-grossing actors, he is best known for playing Dominic Toretto in the Fast & Furious franchise.\n\nDiesel began his career in 1990, but faced difficulty achieving recognition until he wrote, directed and starred in the short film Multi-Facial (1995) and his debut feature Strays (1997); the films prompted Steven Spielberg to cast Diesel in the war epic Saving Private Ryan (1998). Diesel subsequently voiced the titular character in The Iron Giant (1999) and then gained a reputation as an action star after headlining the Fast & Furious, XXX, and The Chronicles of Riddick franchises. He is slated to appear in the upcoming Avatar films.\n\nDiesel voices Groot and Groot II in the Marvel Cinematic Universe (MCU); he portrayed the characters in six superhero films, beginning with Guardians of the Galaxy (2014). Diesel has reprised his role as Groot for the Disney+ animated shorts series I Am Groot (2022\u2013present), the television special The Guardians of the Galaxy Holiday Special (2022), and the animated film Ralph Breaks the Internet (2018). Diesel achieved commercial success in the comedy The Pacifier (2005) and his portrayal of Jackie DiNorscio in Find Me Guilty (2006) was praised.\n\nHe founded the production company One Race Films, where he has also served as a producer or executive producer for his star vehicles. Diesel also founded the record label Racetrack Records and video game developer Tigon Studios, providing his voice and motion capture for all of Tigon's releases.\n\nDescription above from the Wikipedia article Vin Diesel, licensed under CC-BY-SA, full list of contributors on Wikipedia.",
+        "birthday": "1967-07-18",
+        "deathday": null,
+        "gender": 2,
+        "homepage": null,
+        "id": 12835,
+        "imdb_id": "nm0004874",
+        "known_for_department": "Acting",
+        "name": "Vin Diesel",
+        "place_of_birth": "Alameda County, California, USA",
+        "popularity": 113.788,
+        "profile_path": "/nZdVry7lnUkE24PnXakok9okvL4.jpg"
+    },
+    "actors_series": [
+        [
+            "The Pacifier",
+            "Shane Wolf"
+        ],
+        [
+            "The Iron Giant",
+            "The Iron Giant (voice)"
+        ],
+        [
+            "The Chronicles of Riddick",
+            "Riddick"
+        ],
+        [
+            "Pitch Black",
+            "Richard B. Riddick"
+        ]
+    ],
+    "actors_tv": []
+}

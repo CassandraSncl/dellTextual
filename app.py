@@ -1,10 +1,9 @@
 from flask import Flask, request, render_template, jsonify
 import subprocess
 import json, os
-from langchain_openai.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOllama
 from bs4 import BeautifulSoup
 import random
-
 
 app = Flask(__name__)
 
@@ -31,13 +30,75 @@ def extract_conversation_history(input_data, conversation_id):
                     conversation_history.append(f'- Bot: "{bot_text}"\n')
 
             historique_conversation = ' '.join(conversation_history)
-            final_input = f"History : \n{historique_conversation}\n\nQuery: {input_data}\n\n"
+            final_input = f"HISTORY : \n{historique_conversation}\n\nQUERY: {input_data}\n\n"
+
+            llm = ChatOllama(
+            model="llama3",
+            temperature=0,
+            )
 
 
-            return final_input
+
+            messages = [
+                ("system", """You are a helpful assistant who rephrases the QUERY question in a few words if NECESSARY, considering the context provided in the HISTORY. 
+                The new question should be as simple and clear as possible, focusing only on the main topic from the QUERY and excluding any unnecessary details mentioned in the HISTORY.
+
+                If the QUERY is a greeting like 'hello', 'hi', 'hey', or a topic not related to movies, TV shows, actors, or directors, respond with: 
+                'Hello, FlickFriendBot here! I'm here to assist with questions about movies, TV shows, actors, and directors. How can I help in that area?' 
+                If the QUERY is already complete and clear, do not change it, just return it as is
+                Otherwise, return only the text of the new question without answering it."""),
+                ("human", final_input),
+            ]
+            response = llm.invoke(messages)
+
+
+            return response.content
     except Exception as e:
         return "Error: " + str(e)
 
+@app.route('/generate_summary_title_final', methods=['POST'])
+def generate_summary_title_final():
+        print("OOH")
+        conversation_id = request.json.get("id")
+        file_path = os.path.join('data', 'conversation', f'conversation{conversation_id}.html')
+        
+        try:
+            with open(file_path, 'r') as file:
+                content = file.read()
+
+                soup = BeautifulSoup(content, 'html.parser')
+
+                conversation_history = []
+
+                messages = soup.find_all('div', class_='message')
+
+                for message in messages:
+                    if message.find('div', class_='human-message'):
+                        human_text = message.find('p', class_='human-message-text').text
+                        conversation_history.append(f'- Human: "{human_text}"\n')
+                    elif message.find('div', class_='bot-message'):
+                        bot_text = message.find('p', class_='bot-message-text').text
+                        conversation_history.append(f'- Bot: "{bot_text}"\n')
+
+                historique_conversation = ' '.join(conversation_history)
+                final_input = f"HISTORY :{historique_conversation}"
+
+                llm = ChatOllama(
+                model="llama3",
+                temperature=0,
+                )
+
+
+
+                messages = [
+                    ("system", """You are a helpful assistant who creates a title of a few words based on the Conversation. Without answering the question. Just the subject of the Conversation"""),
+                    ("human", final_input),
+                ]
+                response = llm.invoke(messages)
+
+                return jsonify({'summary_title': response.content})
+        except Exception as e:
+            return "Error: " + str(e)
 
 
 @app.route('/generate_summary_title', methods=['POST'])
@@ -45,13 +106,10 @@ def generate_summary_title():
     text = request.json.get('text')
     try:
         # Initialiser le modèle ChatOpenAI
-        llm = ChatOpenAI(
+        llm = ChatOllama(
+            model="llama3",
             temperature=0,
-            model_name="gpt-4-1106-preview",
-            openai_api_base="http://localhost:8000/v1",
-            openai_api_key="Not needed for local server"
         )
-        
         # Créer le prompt pour générer un titre résumé
         prompt = f"Résumé le texte suivant en un titre concis : {text}"
         
@@ -94,7 +152,9 @@ def update_conversation_title():
 def execute_script(script_name, input_data, conversation_id):
     error_answer = "I'm sorry but I couldn't find the answer :("
     try:
-        input_data = "Histoy :   Query: " + input_data
+        input_data = extract_conversation_history(input_data, conversation_id)
+        if "FlickFriendBot" in input_data:
+            return input_data
         result = subprocess.run(['python', f'scripts/mode_{script_name}.py', input_data], capture_output=True, text=True)
         
         # Check if the script execution failed
@@ -108,16 +168,13 @@ def execute_script(script_name, input_data, conversation_id):
         
         # Check if 'result' key is present in the output
         if 'result' not in output:
-            print(result)
             return error_answer
         
         return output['result']
     
     except json.JSONDecodeError:
-        print(result)
         return error_answer
     except Exception:
-        print(result)
         return error_answer
 
 @app.route('/')
@@ -189,7 +246,7 @@ def save_conversation():
     except Exception as e:
         print(str(e))
         return jsonify({'error': str(e)}), 500
-
+    
 
 @app.route('/load_conversation/<conversation_id>', methods=['GET'])
 def load_conversation(conversation_id):
@@ -259,6 +316,7 @@ def delete_conversation():
         return jsonify({'message': 'Conversation deleted successfully.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500   
+    
 
 @app.route('/load_json_question', methods=['POST'])
 def load_json_question():
@@ -275,9 +333,7 @@ def load_json_question():
         return jsonify(random.sample(data[mode],3))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-    
-
+        
 if __name__ == '__main__':
     app.run(debug=True)
 
